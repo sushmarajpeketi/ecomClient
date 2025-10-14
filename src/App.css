@@ -1,0 +1,28 @@
+*{
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  
+  /* height: 100%; */
+}
+
+
+html, body {
+width: 100%;
+  /* position: relative; */
+  /* background-color: bisque; */
+}
+
+.button {
+  border-radius: 8px;
+  border: 1px solid transparent;
+  padding: 0.6em 1.2em;
+  font-size: 1em;
+  font-weight: 500;
+  font-family: inherit;
+  background-color:blueviolet;
+  color: white;
+  cursor: pointer;
+  transition: border-color 0.25s;
+  width: 100%;
+}
