@@ -7,15 +7,17 @@
     z-index: 1;
 }
 .nav{
-    width: 80%;
+    width: 96%;
     display: flex;
     height: 100%;
     margin: auto;
     align-items: center;
     justify-content: space-between;
+    /* font-size: 30px; */
 }
 .nav p{
     color:aliceblue;
+    font-size: 30px;
 }
 .nav-actions ul{
     display: flex;

@@ -10,14 +10,15 @@ import Button from '@mui/material/Button';
 import { Box } from '@mui/material';
 
 const Signup = ({setUserPresence}) => {
-    const [user,setUser] = useState({username:"",email:"",password:""})
-    const [error,setError] = useState({username:"",email:"",password:""})
-    const [isError,setIsError] = useState({username:false,email:false,password:false})
+    const [user,setUser] = useState({username:"",email:"",password:"",mobile:""})
+    const [error,setError] = useState({username:"",email:"",password:"",mobile:""})
+    const [isError,setIsError] = useState({username:false,email:false,password:false,mobile:false})
     
     const navigate = useNavigate()
     let nameSchema = z.string().min(3, "Name must be at least 3 characters").regex(/^[a-z A-Z"]+$/,"Name should only consist of alphabets.");
     let emailSchema = z.string().email("Invalid email address")
     let passwordSchema = z.string().min(4, "Password must be at least 4 characters")
+    let mobileSchema = z.coerce.number().int().max(9999999999,"mobile should'nt be greater than 10 digits").min(100000000,"mobile should'nt be less than 10 digits")
 
   const focusHandler = (name) => {
   if (name === "email" && !user.username) {
@@ -66,10 +67,14 @@ const Signup = ({setUserPresence}) => {
         setError((prev) => ({ ...prev, email: "Required field" }));
         setIsError((prev) => ({ ...prev, email: true }));
         return
-    }else{
+    }else if(!user.password){
         setError((prev) => ({ ...prev,password: "Required field" }));
         setIsError((prev) => ({ ...prev, password: true }));
-        
+        return
+    }else if(!user.mobile){
+        setError((prev) => ({ ...prev,mobile: "Required field" }));
+        setIsError((prev) => ({ ...prev, mobile: true }));  
+        return
     }
     try{
         const res = await axios.post('http://localhost:3000/users/sign-up',user)
@@ -132,6 +137,19 @@ const Signup = ({setUserPresence}) => {
           onChange={(e)=>changeHandler(e.target.name,e.target.value,passwordSchema)}
           error={isError.password}
           helperText={error.password}
+          onFocus={(e)=>focusHandler(e.target.name)}
+        />
+        <TextField
+          required
+          id="outlined-password-input"
+          name='mobile'
+          label="Mobile Number"
+          type="number"
+          value={user.mobile}
+          autoComplete="current-password"
+          onChange={(e)=>changeHandler(e.target.name,e.target.value,mobileSchema)}
+          error={isError.mobile}
+          helperText={error.mobile}
           onFocus={(e)=>focusHandler(e.target.name)}
         />
         <div className="form-button">

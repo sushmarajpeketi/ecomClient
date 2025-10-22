@@ -40,15 +40,12 @@ function App() {
               position: "relative",
               backgroundColor: "rgba(189, 152, 224, 1)",
               width: "fit-content",
-              overflowY: "scroll",
-              overflowX: "hidden",
               overflowY: "auto", 
               overflowX: "hidden",
               msOverflowStyle: "none", 
               scrollbarWidth: "none", 
               "&::-webkit-scrollbar": { width: 0, height: 0 },
               "&::-webkit-scrollbar-thumb": { background: "transparent" },
-              position: "relative",
               zIndex: 1,
             }}
           >
@@ -60,7 +57,6 @@ function App() {
               position: "relative",
               left: "90x",
               width: "100%",
-              
             }}
           >
             <Routes>
