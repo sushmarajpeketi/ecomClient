@@ -10,6 +10,8 @@ import { Box } from "@mui/material";
 import Sidebar from "./components/Sidebar";
 
 import Users from "./components/Users";
+import RoleProtectedRoute from "./components/RoleProtectedRoute";
+import Dashboard from "./components/Dashboard";
 
 function App() {
   const [isSignedIn, setIsSignedIn] = useState(false);
@@ -40,10 +42,10 @@ function App() {
               position: "relative",
               backgroundColor: "rgba(189, 152, 224, 1)",
               width: "fit-content",
-              overflowY: "auto", 
+              overflowY: "auto",
               overflowX: "hidden",
-              msOverflowStyle: "none", 
-              scrollbarWidth: "none", 
+              msOverflowStyle: "none",
+              scrollbarWidth: "none",
               "&::-webkit-scrollbar": { width: 0, height: 0 },
               "&::-webkit-scrollbar-thumb": { background: "transparent" },
               zIndex: 1,
@@ -78,7 +80,17 @@ function App() {
                   />
                 }
               />
-              <Route path="/users" element={<Users />} />
+              <Route element={<RoleProtectedRoute allowedRoles={["admin"]} />}>
+                <Route path="/users" element={<Users />} />
+              </Route>
+
+              <Route
+                element={
+                  <RoleProtectedRoute allowedRoles={["admin", "user"]} />
+                }
+              >
+                <Route path="/dashboard" element={<Dashboard />} />
+              </Route>
             </Routes>
           </Box>
         </Box>

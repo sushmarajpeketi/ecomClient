@@ -20,13 +20,15 @@ const UserProfile = ({ toggleDrawer }) => {
       const reader = new FileReader();
       reader.onload = () => {
         setAvatarSrc(reader.result);
+        console.log("avthar image is",reader.result)
       };
       reader.readAsDataURL(file);
     }
+    
   };
   const logoutButtonHandler = () => {
-    setUser({ username: "", email: "" });
-    setAvatarSrc(null);
+    setUser({ username: "", email: "", mobile: "",id:"" });
+    // setAvatarSrc(null);
     navigate("/");
   };
   return (
@@ -118,7 +120,7 @@ const UserProfile = ({ toggleDrawer }) => {
           textAlign: "center",
           mb: 2,
           display: "grid",
-          gridTemplateAreas: "'myArea1 myArea2 ''myArea3 myArea4'",
+          gridTemplateAreas: "'myArea1 myArea2 ' 'myArea3 myArea4' 'myArea5 myArea6'",
           columnGap: 1,
           alignItems: "center",
           marginTop: "30px",
@@ -144,6 +146,7 @@ const UserProfile = ({ toggleDrawer }) => {
           color="text.secondary"
         >
           {user?.username}
+
         </Typography>
         <Typography
           sx={{ display: "inline", gridArea: "myArea3", color: "blueviolet" }}
@@ -166,7 +169,7 @@ const UserProfile = ({ toggleDrawer }) => {
           {user?.email}
         </Typography>
         <Typography
-          sx={{ display: "inline", gridArea: "myArea3", color: "blueviolet" }}
+          sx={{ display: "inline", gridArea: "myArea5", color: "blueviolet" }}
           variant="body"
           fontWeight="light"
           fontFamily="cursive"
@@ -176,7 +179,7 @@ const UserProfile = ({ toggleDrawer }) => {
         <Typography
           sx={{
             display: "inline",
-            gridArea: "myArea4",
+            gridArea: "myArea6",
             justifySelf: "start",
             color: "gray",
           }}

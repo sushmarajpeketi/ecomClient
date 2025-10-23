@@ -1,4 +1,4 @@
-import React from "react";
+import React,{useContext} from "react";
 import { useNavigate } from "react-router-dom";
 import Box from "@mui/material/Box";
 import List from "@mui/material/List";
@@ -9,13 +9,12 @@ import Divider from "@mui/material/Divider";
 
 import DraftsIcon from "@mui/icons-material/Drafts";
 import GroupOutlinedIcon from "@mui/icons-material/GroupOutlined";
-
+import { userContext } from "../context/userContext";
 const Sidebar = () => {
   const [selectedIndex, setSelectedIndex] = React.useState();
   const navigate = useNavigate();
-
+  const {user,setUser} = useContext(userContext)
   const handleListItemClick = (event, index) => {
-    console.log("clicked");
     setSelectedIndex(index);
   };
 
@@ -61,7 +60,11 @@ const Sidebar = () => {
           },
         }}
       >
-        <ListItemButton
+         {
+         user?.role === "admin" && 
+          ( 
+            <>
+              <ListItemButton
           selected={selectedIndex === 0}
           onClick={(event) => {
             handleListItemClick(event, 0);
@@ -74,234 +77,26 @@ const Sidebar = () => {
           </ListItemIcon>
           <ListItemText primary="Users" />
         </ListItemButton>
-        <Divider />
-        <ListItemButton
+         <Divider />
+            </>
+          
+       )}
+       
+        
+      <ListItemButton
           selected={selectedIndex === 1}
           onClick={(event) => {
             handleListItemClick(event, 1);
+            navigate('/dashboard')
           }}
         >
           <ListItemIcon>
             <DraftsIcon />
           </ListItemIcon>
-          <ListItemText primary="Drafts" />
+          <ListItemText primary="Dashboard" />
         </ListItemButton>
         <Divider />
-        <ListItemButton
-          selected={selectedIndex === 1}
-          onClick={(event) => {
-            handleListItemClick(event, 1);
-          }}
-        >
-          <ListItemIcon>
-            <DraftsIcon />
-          </ListItemIcon>
-          <ListItemText primary="Drafts" />
-        </ListItemButton>
-        <Divider />
-        <ListItemButton
-          selected={selectedIndex === 1}
-          onClick={(event) => {
-            handleListItemClick(event, 1);
-          }}
-        >
-          <ListItemIcon>
-            <DraftsIcon />
-          </ListItemIcon>
-          <ListItemText primary="Drafts" />
-        </ListItemButton>
-        <Divider />
-        <ListItemButton
-          selected={selectedIndex === 1}
-          onClick={(event) => {
-            handleListItemClick(event, 1);
-          }}
-        >
-          <ListItemIcon>
-            <DraftsIcon />
-          </ListItemIcon>
-          <ListItemText primary="Drafts" />
-        </ListItemButton>
-        <Divider />
-        <ListItemButton
-          selected={selectedIndex === 1}
-          onClick={(event) => {
-            handleListItemClick(event, 1);
-          }}
-        >
-          <ListItemIcon>
-            <DraftsIcon />
-          </ListItemIcon>
-          <ListItemText primary="Drafts" />
-        </ListItemButton>
-        <Divider />
-        <ListItemButton
-          selected={selectedIndex === 1}
-          onClick={(event) => {
-            handleListItemClick(event, 1);
-          }}
-        >
-          <ListItemIcon>
-            <DraftsIcon />
-          </ListItemIcon>
-          <ListItemText primary="Drafts" />
-        </ListItemButton>
-        <Divider />
-        <ListItemButton
-          selected={selectedIndex === 1}
-          onClick={(event) => {
-            handleListItemClick(event, 1);
-          }}
-        >
-          <ListItemIcon>
-            <DraftsIcon />
-          </ListItemIcon>
-          <ListItemText primary="Drafts" />
-        </ListItemButton>
-        <Divider />
-        <ListItemButton
-          selected={selectedIndex === 1}
-          onClick={(event) => {
-            handleListItemClick(event, 1);
-          }}
-        >
-          <ListItemIcon>
-            <DraftsIcon />
-          </ListItemIcon>
-          <ListItemText primary="Drafts" />
-        </ListItemButton>
-        <Divider />
-        <ListItemButton
-          selected={selectedIndex === 1}
-          onClick={(event) => {
-            handleListItemClick(event, 1);
-          }}
-        >
-          <ListItemIcon>
-            <DraftsIcon />
-          </ListItemIcon>
-          <ListItemText primary="Drafts" />
-        </ListItemButton>
-        <Divider />
-        <ListItemButton
-          selected={selectedIndex === 1}
-          onClick={(event) => {
-            handleListItemClick(event, 1);
-          }}
-        >
-          <ListItemIcon>
-            <DraftsIcon />
-          </ListItemIcon>
-          <ListItemText primary="Drafts" />
-        </ListItemButton>
-        <Divider />
-        <ListItemButton
-          selected={selectedIndex === 1}
-          onClick={(event) => {
-            handleListItemClick(event, 1);
-          }}
-        >
-          <ListItemIcon>
-            <DraftsIcon />
-          </ListItemIcon>
-          <ListItemText primary="Drafts" />
-        </ListItemButton>
-        <Divider />
-        <ListItemButton
-          selected={selectedIndex === 1}
-          onClick={(event) => {
-            handleListItemClick(event, 1);
-          }}
-        >
-          <ListItemIcon>
-            <DraftsIcon />
-          </ListItemIcon>
-          <ListItemText primary="Drafts" />
-        </ListItemButton>
-        <Divider />
-        <ListItemButton
-          selected={selectedIndex === 1}
-          onClick={(event) => {
-            handleListItemClick(event, 1);
-          }}
-        >
-          <ListItemIcon>
-            <DraftsIcon />
-          </ListItemIcon>
-          <ListItemText primary="Drafts" />
-        </ListItemButton>
-        <Divider />
-        <ListItemButton
-          selected={selectedIndex === 1}
-          onClick={(event) => {
-            handleListItemClick(event, 1);
-          }}
-        >
-          <ListItemIcon>
-            <DraftsIcon />
-          </ListItemIcon>
-          <ListItemText primary="Drafts" />
-        </ListItemButton>
-        <Divider />
-        <ListItemButton
-          selected={selectedIndex === 1}
-          onClick={(event) => {
-            handleListItemClick(event, 1);
-          }}
-        >
-          <ListItemIcon>
-            <DraftsIcon />
-          </ListItemIcon>
-          <ListItemText primary="Drafts" />
-        </ListItemButton>
-        <Divider />
-        <ListItemButton
-          selected={selectedIndex === 1}
-          onClick={(event) => {
-            handleListItemClick(event, 1);
-          }}
-        >
-          <ListItemIcon>
-            <DraftsIcon />
-          </ListItemIcon>
-          <ListItemText primary="Drafts" />
-        </ListItemButton>
-        <Divider />
-        <ListItemButton
-          selected={selectedIndex === 1}
-          onClick={(event) => {
-            handleListItemClick(event, 1);
-          }}
-        >
-          <ListItemIcon>
-            <DraftsIcon />
-          </ListItemIcon>
-          <ListItemText primary="Drafts" />
-        </ListItemButton>
-        <Divider />
-        <ListItemButton
-          selected={selectedIndex === 1}
-          onClick={(event) => {
-            handleListItemClick(event, 1);
-          }}
-        >
-          <ListItemIcon>
-            <DraftsIcon />
-          </ListItemIcon>
-          <ListItemText primary="Drafts" />
-        </ListItemButton>
-        <Divider />
-        <ListItemButton
-          selected={selectedIndex === 1}
-          onClick={(event) => {
-            handleListItemClick(event, 1);
-          }}
-        >
-          <ListItemIcon>
-            <DraftsIcon />
-          </ListItemIcon>
-          <ListItemText primary="Drafts" />
-        </ListItemButton>
+      
       </List>
       <Divider />
     </Box>
