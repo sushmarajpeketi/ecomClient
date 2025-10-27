@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState,useContext } from "react";
 import "./App.css";
 import Navbar from "./components/Navbar";
 import Signin from "./pages/Signin";
@@ -8,14 +8,17 @@ import "react-toastify/dist/ReactToastify.css";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import { Box } from "@mui/material";
 import Sidebar from "./components/Sidebar";
-
 import Users from "./components/Users";
 import RoleProtectedRoute from "./components/RoleProtectedRoute";
 import Dashboard from "./components/Dashboard";
+import { userContext } from "./context/userContext";
+import { Navigate } from "react-router-dom";
+import Unauthorized from "./components/Unauthorized";
+
 
 function App() {
-  const [isSignedIn, setIsSignedIn] = useState(false);
-  console.log("from app", isSignedIn);
+ 
+  const {user,setUser} = useContext(userContext)
 
   return (
     <Router>
@@ -25,7 +28,7 @@ function App() {
           width: "100%",
         }}
       >
-        <Navbar userPresent={isSignedIn} setUserPresence={setIsSignedIn} />
+        <Navbar  />
         <Box
           sx={{
             display: "flex",
@@ -66,18 +69,16 @@ function App() {
                 path="/sign-up"
                 element={
                   <Signup
-                    userPresent={isSignedIn}
-                    setUserPresence={setIsSignedIn}
+                   
                   />
                 }
               />
               <Route
                 path="/sign-in"
-                element={
-                  <Signin
-                    userPresent={isSignedIn}
-                    setUserPresence={setIsSignedIn}
-                  />
+                element={user.username?
+                  (<Navigate to="/dashboard" replace/>):(<Signin
+                   
+                  />)
                 }
               />
               <Route element={<RoleProtectedRoute allowedRoles={["admin"]} />}>
@@ -91,6 +92,7 @@ function App() {
               >
                 <Route path="/dashboard" element={<Dashboard />} />
               </Route>
+              <Route path="/unauthorized" element={<Unauthorized/>}/>
             </Routes>
           </Box>
         </Box>

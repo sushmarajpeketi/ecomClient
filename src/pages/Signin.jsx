@@ -10,8 +10,6 @@ import { userContext } from "../context/userContext";
 
 const Signin = () => {
   const { user: globalUser, setUser: setGlobalUser } = useContext(userContext);
-
-  console.log("user in sign-in", globalUser);
   const [user, setUser] = useState({ email: "", password: "" });
   const [error, setError] = useState({ email: "", password: "" });
   const [isError, setIsError] = useState({ email: false, password: false });
@@ -78,20 +76,19 @@ const Signin = () => {
             withCredentials: true,
           }
         );
-         console.log("USERDETAILS", userDetails.data);
+        console.log("USERDETAILS", userDetails.data);
         setGlobalUser({
           username: userDetails.data.username,
           email: userDetails.data.email,
           id: userDetails.data.id,
           role: userDetails.data.role,
-          mobile:userDetails.data.mobile
+          mobile: userDetails.data.mobile,
+          img: userDetails.data.img,
         });
         navigate("/");
       } catch (e) {
-        toast.error(e.response?.data?.error || e.message || e.error)
+        toast.error(e.response?.data?.error || e.message || e.error);
       }
-
-     
     } catch (e) {
       const backendMsg = e.response?.data?.error;
 
@@ -143,7 +140,7 @@ const Signin = () => {
           variant="contained"
           disabled={Object.values(isError).filter((el) => el).length > 0}
         >
-          SignIn{" "}
+          SignIn
         </Button>
       </div>
     </div>

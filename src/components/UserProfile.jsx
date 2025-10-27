@@ -9,27 +9,49 @@ import { useContext, useState } from "react";
 import { userContext } from "../context/userContext";
 import { useNavigate } from "react-router-dom";
 import EditIcon from "@mui/icons-material/Edit";
-const UserProfile = ({ toggleDrawer }) => {
-  const { user, setUser } = useContext(userContext);
-  const [avatarSrc, setAvatarSrc] = useState(null);
+import { toast } from "react-toastify";
+import axios from "axios";
+const UserProfile = ({ open, toggleDrawer }) => {
+  const { user, setUser, refreshUser } = useContext(userContext);
+  const [avatarSrc, setAvatarSrc] = useState(user.img);
   let navigate = useNavigate();
-  const handleAvatarChange = (event) => {
+
+  const handleAvatarChange = async (event) => {
     const file = event.target.files?.[0];
     if (file) {
       // Read the file as a data URL
       const reader = new FileReader();
       reader.onload = () => {
         setAvatarSrc(reader.result);
-        console.log("avthar image is",reader.result)
       };
       reader.readAsDataURL(file);
+      const formData = new FormData();
+      formData.append("avatar", file);
+
+      try {
+        const res = await axios.post(
+          "http://localhost:3000/users/upload-avatar",
+          formData,
+          {
+            withCredentials: true,
+          }
+        );
+        
+        toast.success(res.data.message);
+        console.log("Uploaded successfully:", res.data);
+       
+      } catch (error) {
+        console.error("Upload failed:", error);
+        toast.error(error?.response?.data?.error || error.message);
+      }
+      return
     }
-    
   };
   const logoutButtonHandler = () => {
-    setUser({ username: "", email: "", mobile: "",id:"" });
-    // setAvatarSrc(null);
-    navigate("/");
+    setUser({ username: "", email: "", mobile: "", id: "", img: "" });
+    toggleDrawer(open);
+    navigate("/sign-in");
+    
   };
   return (
     <Box sx={{ width: 250 }} role="presentation">
@@ -46,7 +68,10 @@ const UserProfile = ({ toggleDrawer }) => {
         <span style={{ fontFamily: "cursive", marginLeft: "20px" }}>
           User Profile
         </span>
-        <IconButton onClick={toggleDrawer(false)}>
+        <IconButton onClick={() => {
+          toggleDrawer(open)
+          refreshUser()
+          }}>
           <CloseIcon />
         </IconButton>
       </Box>
@@ -76,14 +101,9 @@ const UserProfile = ({ toggleDrawer }) => {
             cursor: "pointer",
           }}
           alt="Upload new avatar"
-          src={
-            typeof avatarSrc === "string" && avatarSrc.startsWith("data:")
-              ? avatarSrc
-              : undefined
-          }
+          src={typeof avatarSrc === "string" ? avatarSrc : undefined}
         >
-          {(!avatarSrc || !avatarSrc.startsWith("data:")) &&
-            user?.username[0]?.toUpperCase()}
+          {!avatarSrc && user?.username[0]?.toUpperCase()}
         </Avatar>
         <EditIcon
           style={{
@@ -120,7 +140,8 @@ const UserProfile = ({ toggleDrawer }) => {
           textAlign: "center",
           mb: 2,
           display: "grid",
-          gridTemplateAreas: "'myArea1 myArea2 ' 'myArea3 myArea4' 'myArea5 myArea6'",
+          gridTemplateAreas:
+            "'myArea1 myArea2 ' 'myArea3 myArea4' 'myArea5 myArea6'",
           columnGap: 1,
           alignItems: "center",
           marginTop: "30px",
@@ -146,7 +167,6 @@ const UserProfile = ({ toggleDrawer }) => {
           color="text.secondary"
         >
           {user?.username}
-
         </Typography>
         <Typography
           sx={{ display: "inline", gridArea: "myArea3", color: "blueviolet" }}

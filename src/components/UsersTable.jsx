@@ -19,8 +19,7 @@ const columns = [
 ];
 
 export default function UsersTable({ users,page,rowsPerPage,rowsPerPageSetter,pageSetter,length }) {
-  console.log("users in users table", users);
- console.log("length of users in UsersTable is",length)
+
 
   let rows = users.map((el) => {
     return { username: el.username, email: el.email, mobile: el.mobile };

@@ -15,11 +15,10 @@ const Navbar = () => {
 
   const [open, setOpen] = useState(false);
 
-  const toggleDrawer = (newOpen) => () => {
-    setOpen(newOpen);
+  const toggleDrawer = (val) => {
+    console.log("toggle drawer is ",val)
+    setOpen(!val);
   };
-
-
 
   return (
     <div className="nav-container">
@@ -37,11 +36,11 @@ const Navbar = () => {
             </ul>
           ) : (
             <>
-              <IconButton onClick={toggleDrawer(true)} >
-                <Avatar sx={{ width: 60, height: 60 }}>{user.username[0].toUpperCase()}</Avatar>
+              <IconButton onClick={()=>toggleDrawer(open)} >
+                <Avatar sx={{ width: 60, height: 60 }} src={user?.img}>{user.username[0].toUpperCase()}</Avatar>
               </IconButton>
-              <Drawer open={open} onClose={toggleDrawer(false)} anchor="right" sx={{position:"relative"}}>
-                <UserProfile toggleDrawer={toggleDrawer} />
+              <Drawer open={open} onClose={()=>toggleDrawer(open)} anchor="right" sx={{position:"relative"}}>
+                <UserProfile open={open} toggleDrawer={toggleDrawer} />
               </Drawer>
             </>
           )}

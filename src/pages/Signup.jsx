@@ -9,7 +9,7 @@ import TextField from '@mui/material/TextField';
 import Button from '@mui/material/Button';
 import { Box } from '@mui/material';
 
-const Signup = ({setUserPresence}) => {
+const Signup = ({}) => {
     const [user,setUser] = useState({username:"",email:"",password:"",mobile:""})
     const [error,setError] = useState({username:"",email:"",password:"",mobile:""})
     const [isError,setIsError] = useState({username:false,email:false,password:false,mobile:false})
@@ -80,7 +80,7 @@ const Signup = ({setUserPresence}) => {
         const res = await axios.post('http://localhost:3000/users/sign-up',user)
         console.log("signing up",res.data.message)
         toast.success(res?.data?.message)
-        setUserPresence(true)
+        // setUserPresence(true)
         setError({username:"",email:"",password:""})
         setUser({username:"",email:"",password:""})
         console.log(user)

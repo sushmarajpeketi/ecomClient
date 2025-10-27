@@ -26,9 +26,9 @@ const Users = () => {
       console.log("hitting dynamic users ", page, rowsPerPage);
       const count = await axios(`http://localhost:3000/users/length`,{withCredentials:true})
       setLength(count.data)
-      console.log("length is in users",length)
+      console.log("length in users",length)
       const res = await axios.get(
-        `http://localhost:3000/users/dynamic-users/${page}/${rowsPerPage}`,
+        `http://localhost:3000/users?page=${page}&rows=${rowsPerPage}`,
         { withCredentials: true }
       );
       console.log("response is ",res.data);
@@ -39,8 +39,7 @@ const Users = () => {
       toast.error(e.message);
     }
   }
-  // fetchUsers()
-  console.log("-------------", users);
+  
   return (
     <Box>
       <Box sx={{width:"90%",minHeight:"90%"}}>
