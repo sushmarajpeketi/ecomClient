@@ -20,7 +20,6 @@ const columns = [
 
 export default function UsersTable({ users,page,rowsPerPage,rowsPerPageSetter,pageSetter,length }) {
 
-
   let rows = users.map((el) => {
     return { username: el.username, email: el.email, mobile: el.mobile };
   });
@@ -34,16 +33,28 @@ export default function UsersTable({ users,page,rowsPerPage,rowsPerPageSetter,pa
   };
 
   return (
-    <Paper sx={{ width: "100%", overflow: "hidden" }}>
-      <TableContainer sx={{ maxHeight: 440 }}>
-        <Table sx={{minHeight:"90%"}} stickyHeader aria-label="sticky table">
+    <Paper  sx={{
+    // width: "clamp(400px, 80%, 900px)",
+    margin:5,
+    mx: "auto",
+    // overflow: "hidden",
+    height:"500px"
+    
+  }}>
+      <TableContainer
+       sx={{ 
+        // height:"80%"
+        // maxHeight: 600 
+      }}
+       >
+        <Table stickyHeader aria-label="sticky table">
           <TableHead>
             <TableRow>
               {columns.map((column) => (
                 <TableCell
                   key={column.id}
                   align={column.align}
-                  style={{ minWidth: column.minWidth }}
+                  style={{ width: 120, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}
                 >
                   {column.label}
                 </TableCell>
@@ -54,11 +65,11 @@ export default function UsersTable({ users,page,rowsPerPage,rowsPerPageSetter,pa
             {rows
               .map((row) => {
                 return (
-                  <TableRow hover role="checkbox" tabIndex={-1} key={row.code}>
+                  <TableRow hover role="checkbox" tabIndex={-1} key={row.code} sx={{maxWidth:100}} >
                     {columns.map((column) => {
                       const value = row[column.id];
                       return (
-                        <TableCell key={column.id} align={column.align}>
+                        <TableCell key={column.id} align={column.align} >
                           {column.format && typeof value === "number"
                             ? column.format(value)
                             : value}
@@ -80,6 +91,7 @@ export default function UsersTable({ users,page,rowsPerPage,rowsPerPageSetter,pa
         onPageChange={handleChangePage}
         onRowsPerPageChange={handleChangeRowsPerPage}
       />
+     
     </Paper>
   );
 }

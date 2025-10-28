@@ -12,7 +12,7 @@ import EditIcon from "@mui/icons-material/Edit";
 import { toast } from "react-toastify";
 import axios from "axios";
 const UserProfile = ({ open, toggleDrawer }) => {
-  const { user, setUser, refreshUser } = useContext(userContext);
+  const { user, setUser, fetchUser } = useContext(userContext);
   const [avatarSrc, setAvatarSrc] = useState(user.img);
   let navigate = useNavigate();
 
@@ -47,11 +47,18 @@ const UserProfile = ({ open, toggleDrawer }) => {
       return
     }
   };
-  const logoutButtonHandler = () => {
-    setUser({ username: "", email: "", mobile: "", id: "", img: "" });
-    toggleDrawer(open);
-    navigate("/sign-in");
-    
+  const logoutButtonHandler = async() => {
+    try{
+        let res = await axios("http://localhost:3000/users/logout",{withCredentials:true})
+        setUser({username:"",email:"",role:"",id:"",mobile:"",img:""});
+        toggleDrawer(open);
+        navigate("/sign-in");
+        console.log("hey")
+        toast.success(res?.data?.message)
+        return
+    }catch(e){
+       toast.error(e?.response?.data?.message||e?.data?.error||e?.message)
+    }
   };
   return (
     <Box sx={{ width: 250 }} role="presentation">
@@ -70,7 +77,7 @@ const UserProfile = ({ open, toggleDrawer }) => {
         </span>
         <IconButton onClick={() => {
           toggleDrawer(open)
-          refreshUser()
+          fetchUser()
           }}>
           <CloseIcon />
         </IconButton>

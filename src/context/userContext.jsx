@@ -1,11 +1,11 @@
 import { createContext, useState ,useEffect} from "react";
 import axios from "axios";
-import { toast } from "react-toastify";
 
 let userContext = createContext();
 
 let UserProvider = ({ children }) => {
-    const [user,setUser] = useState({username:"",email:"",role:"",id:"",mobile:""})
+    const [loading, setLoading] = useState(true);
+    const [user,setUser] = useState({username:"",email:"",role:"",id:"",mobile:"",img:""})
   useEffect(() => {
     fetchUser();
   }, []);
@@ -18,17 +18,22 @@ let UserProvider = ({ children }) => {
           withCredentials: true,
         }
       );
-    
       setUser(userDetails.data);
       return;
     } catch (error) {
- 
-      toast.error(error.message);
+       if (error.response?.status === 401) {
+      // Token expired or no token: this is normal, not an error
+      console.log("No valid user session.");
+      setUser({ username: "", email: "", role: "", id: "", mobile: "" });
       return;
+    }
+      return;
+    }finally{
+        setLoading(false)
     }
   };
   return (
-    <userContext.Provider value={{ user, setUser, refreshUser:fetchUser }}>
+    <userContext.Provider value={{ user, setUser,fetchUser,loading,setLoading}}>
       {children}
     </userContext.Provider>
   );

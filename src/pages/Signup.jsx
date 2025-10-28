@@ -1,4 +1,3 @@
-import React from 'react'
 import axios from "axios"
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
@@ -18,7 +17,7 @@ const Signup = ({}) => {
     let nameSchema = z.string().min(3, "Name must be at least 3 characters").regex(/^[a-z A-Z"]+$/,"Name should only consist of alphabets.");
     let emailSchema = z.string().email("Invalid email address")
     let passwordSchema = z.string().min(4, "Password must be at least 4 characters")
-    let mobileSchema = z.coerce.number().int().max(9999999999,"mobile should'nt be greater than 10 digits").min(100000000,"mobile should'nt be less than 10 digits")
+    let mobileSchema = z.coerce.number().int().max(9999999999,"mobile should'nt be greater than 10 digits").min(1000000000,"mobile should'nt be less than 10 digits")
 
   const focusHandler = (name) => {
   if (name === "email" && !user.username) {
@@ -37,7 +36,6 @@ const Signup = ({}) => {
     if (!user.password) {
             setError((prev) => ({ ...prev,password: "Required field" }));
             setIsError((prev) => ({ ...prev, password: true }));
-          
         }
   }
 };

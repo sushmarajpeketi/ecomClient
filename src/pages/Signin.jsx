@@ -76,7 +76,7 @@ const Signin = () => {
             withCredentials: true,
           }
         );
-        console.log("USERDETAILS", userDetails.data);
+        
         setGlobalUser({
           username: userDetails.data.username,
           email: userDetails.data.email,

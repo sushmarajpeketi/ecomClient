@@ -60,8 +60,11 @@ function App() {
             sx={{
               height: "100%",
               position: "relative",
+              top:"0px",
               left: "90x",
               width: "100%",
+              margin:0,
+              padding:0
             }}
           >
             <Routes>
@@ -76,9 +79,7 @@ function App() {
               <Route
                 path="/sign-in"
                 element={user.username?
-                  (<Navigate to="/dashboard" replace/>):(<Signin
-                   
-                  />)
+                  (<Navigate to="/dashboard" replace/>):(<Signin/>)
                 }
               />
               <Route element={<RoleProtectedRoute allowedRoles={["admin"]} />}>
