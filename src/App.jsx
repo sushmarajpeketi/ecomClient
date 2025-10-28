@@ -1,4 +1,4 @@
-import { useState,useContext } from "react";
+import { useState, useContext } from "react";
 import "./App.css";
 import Navbar from "./components/Navbar";
 import Signin from "./pages/Signin";
@@ -15,10 +15,8 @@ import { userContext } from "./context/userContext";
 import { Navigate } from "react-router-dom";
 import Unauthorized from "./components/Unauthorized";
 
-
 function App() {
- 
-  const {user,setUser} = useContext(userContext)
+  const { user, setUser } = useContext(userContext);
 
   return (
     <Router>
@@ -26,37 +24,40 @@ function App() {
         sx={{
           height: "100%",
           width: "100%",
+          overflow: "hidden",
         }}
       >
-        <Navbar  />
+        <Navbar />
         <Box
           sx={{
-            display: "flex",
-            flexDirection: "row",
-            position: "relative",
+            height: "calc(100%-70px)",
+            position: "fixed",
+            backgroundColor: "rgba(189, 152, 224, 1)",
+            width: "fit-content",
+            overflowY: "auto",
+            overflowX: "hidden",
+            msOverflowStyle: "none",
+            scrollbarWidth: "none",
+            "&::-webkit-scrollbar": { width: 0, height: 0 },
+            "&::-webkit-scrollbar-thumb": { background: "transparent" },
+            zIndex: 1,
             top: "70px",
-            height: "calc(100% - 70px)",
-            width: "100%",
+            height: "100%",
           }}
         >
-          <Box
-            sx={{
-              height: "calc(100%-70px)",
-              position: "relative",
-              backgroundColor: "rgba(189, 152, 224, 1)",
-              width: "fit-content",
-              overflowY: "auto",
-              overflowX: "hidden",
-              msOverflowStyle: "none",
-              scrollbarWidth: "none",
-              "&::-webkit-scrollbar": { width: 0, height: 0 },
-              "&::-webkit-scrollbar-thumb": { background: "transparent" },
-              zIndex: 1,
-            }}
-          >
-            <Sidebar />
-          </Box>
-          <Box
+          <Sidebar />
+        </Box>
+        <Box
+          sx={{
+            position: "relative",
+            top: "70px",
+            left: "90px",
+            height: "calc(100% - 70px)",
+            width: "calc(100% - 90px)",
+            overflow: "auto",
+          }}
+        >
+          {/* <
             sx={{
               height: "100%",
               position: "relative",
@@ -66,40 +67,37 @@ function App() {
               margin:0,
               padding:0
             }}
-          >
-            <Routes>
-              <Route
-                path="/sign-up"
-                element={
-                  <Signup
-                   
-                  />
-                }
-              />
-              <Route
-                path="/sign-in"
-                element={user.username?
-                  (<Navigate to="/dashboard" replace/>):(<Signin/>)
-                }
-              />
-              <Route element={<RoleProtectedRoute allowedRoles={["admin"]} />}>
-                <Route path="/users" element={<Users />} />
-              </Route>
+          > */}
+          <Routes>
+            <Route path="/sign-up" element={<Signup />} />
+            <Route
+              path="/sign-in"
+              element={
+                user.username ? (
+                  <Navigate to="/dashboard" replace />
+                ) : (
+                  <Signin />
+                )
+              }
+            />
+            <Route element={<RoleProtectedRoute allowedRoles={["admin"]} />}>
+              <Route path="/users" element={<Users />} />
+            </Route>
 
-              <Route
-                element={
-                  <RoleProtectedRoute allowedRoles={["admin", "user"]} />
-                }
-              >
-                <Route path="/dashboard" element={<Dashboard />} />
-              </Route>
-              <Route path="/unauthorized" element={<Unauthorized/>}/>
-            </Routes>
-          </Box>
+            <Route
+              element={<RoleProtectedRoute allowedRoles={["admin", "user"]} />}
+            >
+              <Route path="/dashboard" element={<Dashboard />} />
+            </Route>
+            <Route path="/unauthorized" element={<Unauthorized />} />
+          </Routes>
+          {/* <Box sx={{ backgroundColor: "Gray", height: "50px", bottom: 0 }}>
+            some footer
+            sdfdfjsdfsjakkkkkkkkkkdddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd
+          </Box> */}
+          <ToastContainer />
         </Box>
       </Box>
-
-      <ToastContainer />
     </Router>
   );
 }

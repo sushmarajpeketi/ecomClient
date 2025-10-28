@@ -20,7 +20,6 @@ const Users = () => {
   };
 
   useEffect(() => {
-    console.log("---------------------page number", page); 
     fetchUsers();
   }, [page, rowsPerPage]);
 
@@ -105,7 +104,10 @@ const Users = () => {
           pageSetter={pageSetter}
           length={length}
         />
+
+        <Box sx={{width:"100%", height:"50px" ,color:"gray",textAlign:"center" }}>@all copy rights reserved</Box>
       </Box>
+      
     </Box>
   );
 };
