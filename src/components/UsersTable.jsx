@@ -1,3 +1,4 @@
+import { gray } from "@cloudinary/url-gen/qualifiers/FontAntialias";
 import Paper from "@mui/material/Paper";
 import Table from "@mui/material/Table";
 import TableBody from "@mui/material/TableBody";
@@ -58,7 +59,7 @@ export default function UsersTable({
         }
       >
         <Table stickyHeader aria-label="sticky table">
-          <TableHead>
+          <TableHead >
             <TableRow>
               {columns.map((column) => (
                 <TableCell
@@ -67,6 +68,7 @@ export default function UsersTable({
                   style={{
                     width: 120,
                     whiteSpace: "nowrap",
+                    backgroundColor:"lightgray",
                     // overflow: "hidden",
                     textOverflow: "ellipsis",
                   }}

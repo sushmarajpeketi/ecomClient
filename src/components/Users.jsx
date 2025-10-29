@@ -1,16 +1,23 @@
 import axios from "axios";
-import React, { useEffect } from "react";
+import React, { useEffect, useContext, useState } from "react";
 import { toast } from "react-toastify";
 import UsersTable from "./UsersTable";
-import { Box, Stack, TextField, Button } from "@mui/material";
+import { Box, Stack, TextField, Button, ratingClasses } from "@mui/material";
 import SearchIcon from "@mui/icons-material/Search";
 import AddIcon from "@mui/icons-material/Add";
+import { userContext } from "../context/userContext";
+import { relative } from "@cloudinary/url-gen/qualifiers/flag";
 
 const Users = () => {
+  const { user: globalUser } = useContext(userContext);
   let [length, setLength] = React.useState(0);
   let [users, setUser] = React.useState([]);
   const [page, setPage] = React.useState(0);
   const [rowsPerPage, setRowsPerPage] = React.useState(10);
+
+  const [searchObj, setSearchObj] = useState({});
+  const [isChangeInFilter, setIsChangeInFilter] = useState(true);
+
   const pageSetter = (newPage) => {
     setPage(newPage);
   };
@@ -25,19 +32,32 @@ const Users = () => {
 
   async function fetchUsers() {
     try {
-      console.log("hitting dynamic users ", page, rowsPerPage);
-      const count = await axios(`http://localhost:3000/users/length`, {
-        withCredentials: true,
-      });
-      setLength(count.data);
-      console.log("length in users", length);
+      let queryString = ``;
+      if (searchObj?.username) {
+        queryString += `&username=${searchObj?.username}`;
+      }
+      if (searchObj?.email) {
+        queryString += `&email=${searchObj?.email}`;
+      }
+      if (isChangeInFilter) {
+        queryString += `&length=true`;
+      }
+
       const res = await axios.get(
-        `http://localhost:3000/users?page=${page}&rows=${rowsPerPage}`,
+        `http://localhost:3000/users?page=${page}&rows=${rowsPerPage}` +
+          queryString,
         { withCredentials: true }
       );
-      console.log("response is ", res.data);
-      setUser(res.data);
-      console.log("users inside users", users);
+      
+      setUser(res?.data?.users);
+      if (res?.data?.count) {
+        setLength(res?.data?.count);
+        setIsChangeInFilter(false);
+      }
+      // if(count<0){
+        
+      // }
+      // console.log("users inside users", users);
     } catch (e) {
       console.log("error is", e);
       toast.error(e.message);
@@ -47,33 +67,49 @@ const Users = () => {
   return (
     <Box
       sx={{
-        padding : 5,
+        // padding: 5,
         width: "100%",
         boxSizing: "border-box",
-        maxHeight: "calc(100% - 90px)",
+        minHeight: "100%",
+        display: "flex",
+        justifyContent: "space-between",
+        flexDirection: "column",
+        // position:"relative"
       }}
     >
-      <Box>
-        <Box sx={{ display: "flex" }}>
+      <Box sx={{ padding: 5 }}>
+        <Box sx={{ display: "flex", justifyContent: "space-between" }}>
           <Box sx={{ display: "flex", gap: 2 }}>
             <TextField
               id="filled-search"
+              name="username"
               label="Search by username"
               type="search"
               variant="outlined"
+              value={searchObj?.username}
+              onChange={(e) => {
+                setSearchObj({ ...searchObj, [e.target.name]: e.target.value });
+                setIsChangeInFilter(true);
+              }}
             />
             <TextField
               id="filled-search"
+              name="email"
               label="Search by email"
               type="search"
-              // variant="filled"
+              value={searchObj?.email}
+              onChange={(e) => {
+                setSearchObj({ ...searchObj, [e.target.name]: e.target.value });
+                setIsChangeInFilter(true);
+              }}
+              variant="outlined"
             />
-            <TextField
+            {/* <TextField
               id="filled-search"
               label="Search by number"
               type="search"
               // variant="filled"
-            />
+            /> */}
           </Box>
           <Stack
             spacing={2}
@@ -87,6 +123,7 @@ const Users = () => {
               endIcon={<SearchIcon />}
               loading:false
               loadingPosition="start"
+              onClick={fetchUsers}
             >
               Search
             </Button>
@@ -104,10 +141,21 @@ const Users = () => {
           pageSetter={pageSetter}
           length={length}
         />
-
-        <Box sx={{width:"100%", height:"50px" ,color:"gray",textAlign:"center" }}>@all copy rights reserved</Box>
       </Box>
-      
+      <Box
+        sx={{
+          width: "100%",
+          // position:"relative",
+          height: "50px",
+          color: "gray",
+          textAlign: "center",
+          paddingBottom: 0,
+          marginBottom: 0,
+          // bottom:0
+        }}
+      >
+        @all copy rights reserved
+      </Box>
     </Box>
   );
 };

@@ -57,17 +57,7 @@ function App() {
             overflow: "auto",
           }}
         >
-          {/* <
-            sx={{
-              height: "100%",
-              position: "relative",
-              top:"0px",
-              left: "90x",
-              width: "100%",
-              margin:0,
-              padding:0
-            }}
-          > */}
+         
           <Routes>
             <Route path="/sign-up" element={<Signup />} />
             <Route
@@ -91,10 +81,7 @@ function App() {
             </Route>
             <Route path="/unauthorized" element={<Unauthorized />} />
           </Routes>
-          {/* <Box sx={{ backgroundColor: "Gray", height: "50px", bottom: 0 }}>
-            some footer
-            sdfdfjsdfsjakkkkkkkkkkdddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd
-          </Box> */}
+         
           <ToastContainer />
         </Box>
       </Box>
