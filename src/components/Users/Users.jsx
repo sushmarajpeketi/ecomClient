@@ -5,7 +5,7 @@ import UsersTable from "./UsersTable";
 import { Box, Stack, TextField, Button, ratingClasses } from "@mui/material";
 import SearchIcon from "@mui/icons-material/Search";
 import AddIcon from "@mui/icons-material/Add";
-import { userContext } from "../context/userContext";
+import { userContext } from "../../context/userContext";
 import { relative } from "@cloudinary/url-gen/qualifiers/flag";
 
 const Users = () => {
@@ -50,7 +50,8 @@ const Users = () => {
       );
       
       setUser(res?.data?.users);
-      if (res?.data?.count) {
+      // console.log("count", res?.data?.count )
+      if (res?.data?.count || parseInt(res?.data?.count)>=0 ) {
         setLength(res?.data?.count);
         setIsChangeInFilter(false);
       }

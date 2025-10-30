@@ -6,7 +6,7 @@ import Divider from "@mui/material/Divider";
 import CloseIcon from "@mui/icons-material/Close";
 import { Avatar, IconButton, ButtonBase, Typography } from "@mui/material";
 import { useContext, useState } from "react";
-import { userContext } from "../context/userContext";
+import { userContext } from "../../context/userContext";
 import { useNavigate } from "react-router-dom";
 import EditIcon from "@mui/icons-material/Edit";
 import { toast } from "react-toastify";
@@ -155,7 +155,7 @@ const UserProfile = ({ open, toggleDrawer }) => {
         }}
       >
         <Typography
-          sx={{ display: "inline", gridArea: "myArea1", color: "blueviolet" }}
+          sx={{ display: "inline", gridArea: "myArea1", color: "rgba(20, 62, 249, 1)" }}
           variant="body1"
           fontWeight="light"
           fontFamily="cursive"
@@ -176,7 +176,7 @@ const UserProfile = ({ open, toggleDrawer }) => {
           {user?.username}
         </Typography>
         <Typography
-          sx={{ display: "inline", gridArea: "myArea3", color: "blueviolet" }}
+          sx={{ display: "inline", gridArea: "myArea3", color: "rgba(20, 62, 249, 1)" }}
           variant="body"
           fontWeight="light"
           fontFamily="cursive"
@@ -196,7 +196,7 @@ const UserProfile = ({ open, toggleDrawer }) => {
           {user?.email}
         </Typography>
         <Typography
-          sx={{ display: "inline", gridArea: "myArea5", color: "blueviolet" }}
+          sx={{ display: "inline", gridArea: "myArea5", color: "rgba(20, 62, 249, 1)" }}
           variant="body"
           fontWeight="light"
           fontFamily="cursive"
@@ -232,11 +232,11 @@ const UserProfile = ({ open, toggleDrawer }) => {
       >
         <Button
           sx={{
-            color: "blueviolet",
+            color: "rgba(20, 62, 249, 1)",
             fontFamily: "cursive",
             "&:hover": {
-              borderColor: "blueviolet",
-              backgroundColor: "rgba(138, 43, 226, 0.1)",
+              borderColor: "rgba(87, 159, 179, 0.1)",
+              backgroundColor: "rgba(96, 173, 215, 0.5)",
             },
           }}
           variant="text"
@@ -245,11 +245,11 @@ const UserProfile = ({ open, toggleDrawer }) => {
         </Button>
         <Button
           sx={{
-            color: "blueviolet",
+            color: "rgba(20, 62, 249, 1)",
             fontFamily: "cursive",
             "&:hover": {
-              borderColor: "blueviolet",
-              backgroundColor: "rgba(138, 43, 226, 0.1)",
+              borderColor: "rgba(87, 159, 179, 0.1)",
+              backgroundColor: "rgba(96, 173, 215, 0.5)",
             },
           }}
           onClick={logoutButtonHandler}

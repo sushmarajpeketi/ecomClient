@@ -14,6 +14,7 @@ import Dashboard from "./components/Dashboard";
 import { userContext } from "./context/userContext";
 import { Navigate } from "react-router-dom";
 import Unauthorized from "./components/Unauthorized";
+import Products from "./components/Products";
 
 function App() {
   const { user, setUser } = useContext(userContext);
@@ -32,7 +33,7 @@ function App() {
           sx={{
             height: "calc(100%-70px)",
             position: "fixed",
-            backgroundColor: "rgba(189, 152, 224, 1)",
+            backgroundColor: "rgba(20, 62, 249, 0.6)",
             width: "fit-content",
             overflowY: "auto",
             overflowX: "hidden",
@@ -57,7 +58,6 @@ function App() {
             overflow: "auto",
           }}
         >
-         
           <Routes>
             <Route path="/sign-up" element={<Signup />} />
             <Route
@@ -79,9 +79,11 @@ function App() {
             >
               <Route path="/dashboard" element={<Dashboard />} />
             </Route>
+            <Route path="/products" element={<Products/>}/>
             <Route path="/unauthorized" element={<Unauthorized />} />
+
           </Routes>
-         
+
           <ToastContainer />
         </Box>
       </Box>
