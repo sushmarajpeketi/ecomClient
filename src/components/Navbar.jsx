@@ -8,7 +8,7 @@ import {
   Drawer,
 } from "@mui/material";
 
-import UserProfile from "./UserProfile";
+import UserProfile from "./Users/UserProfile";
 
 const Navbar = () => {
   const { user, setUser } = useContext(userContext);

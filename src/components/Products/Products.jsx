@@ -6,10 +6,10 @@ import ProductCard from "./ProductCard";
 import TablePagination from "@mui/material/TablePagination";
 import { Box, Stack, TextField, Button } from "@mui/material";
 import AddProductCard from "./AddProductCard";
-import userContext from "../../context/userContext";
+import {userContext} from "../../context/userContext";
 
 const Products = () => {
-  const [user] = useContext(userContext);
+  const {user} = useContext(userContext);
   const [addModalOpen, setAddModalOpen] = useState(false);
   const [page, setPage] = React.useState(0);
   const [rowsPerPage, setRowsPerPage] = React.useState(10);
@@ -27,6 +27,7 @@ const Products = () => {
   let [products, setProducts] = useState([]);
 
   useEffect(() => {
+    console.log("user",user)
     fetchCards();
   }, [page, rowsPerPage]);
 

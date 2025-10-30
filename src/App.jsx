@@ -8,13 +8,13 @@ import "react-toastify/dist/ReactToastify.css";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import { Box } from "@mui/material";
 import Sidebar from "./components/Sidebar";
-import Users from "./components/Users";
+import Users from './components/Users/Users'
 import RoleProtectedRoute from "./components/RoleProtectedRoute";
 import Dashboard from "./components/Dashboard";
 import { userContext } from "./context/userContext";
 import { Navigate } from "react-router-dom";
 import Unauthorized from "./components/Unauthorized";
-import Products from "./components/Products";
+import Products from "./components/Products/Products";
 
 function App() {
   const { user, setUser } = useContext(userContext);
