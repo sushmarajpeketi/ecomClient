@@ -64,7 +64,7 @@ const AddProductCard = ({ open, onClose, onAddSuccess }) => {
     setLoading(true);
 
     try {
-      console.log(form)
+     
       await axios.post("http://localhost:3000/products/create-product", form, {
         withCredentials: true,
       });

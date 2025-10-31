@@ -6,32 +6,45 @@ import ProductCard from "./ProductCard";
 import TablePagination from "@mui/material/TablePagination";
 import { Box, Stack, TextField, Button } from "@mui/material";
 import AddProductCard from "./AddProductCard";
-import {userContext} from "../../context/userContext";
+import { userContext } from "../../context/userContext";
+import { DemoItem } from "@mui/x-date-pickers/internals/demo";
+import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
+import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
+import { DesktopDatePicker } from "@mui/x-date-pickers/DesktopDatePicker";
+import dayjs from "dayjs";
+
+import Alert from "@mui/material/Alert";
 
 const Products = () => {
-  const {user} = useContext(userContext);
+  const { user } = useContext(userContext);
   const [addModalOpen, setAddModalOpen] = useState(false);
   const [page, setPage] = React.useState(0);
   const [rowsPerPage, setRowsPerPage] = React.useState(10);
   const [count, setCount] = useState(0);
   const [fetchTotal, setFetchTotal] = useState(true);
-  const handleChangePage = (event, newPage) => {
-    setPage(newPage);
-  };
-
-  const handleChangeRowsPerPage = (event) => {
-    setRowsPerPage(parseInt(event.target.value, 10));
-    setPage(0);
-  };
-  const [searchObj, setSearchObj] = useState({});
+  const [searchObj, setSearchObj] = useState({createdAt: null});
   let [products, setProducts] = useState([]);
+  const [cleared, setCleared] = React.useState(false);
+
+  React.useEffect(() => {
+    if (cleared) {
+      const timeout = setTimeout(() => {
+        setCleared(false);
+      }, 1500);
+
+      return () => clearTimeout(timeout);
+    }
+    return () => {};
+  }, [cleared]);
 
   useEffect(() => {
-    console.log("user",user)
     fetchCards();
   }, [page, rowsPerPage]);
 
   const fetchCards = async () => {
+    console.log("search objct is", searchObj);
+    console.log(searchObj?.createdAt?.format("YYYY-MM-DD"))
+    // console.log(dayjs(searchObj?.createdAt).startOf("day").toISOString())
     let queryString = ``;
     if (searchObj) {
       if (searchObj?.name) {
@@ -39,6 +52,8 @@ const Products = () => {
       }
       if (searchObj?.category) {
         queryString += "&category=" + searchObj.category;
+      }if(searchObj?.createdAt){
+        queryString += "&createdAt=" + searchObj?.createdAt?.format("YYYY-MM-DD")
       }
     }
     let product = await axios.get(
@@ -48,14 +63,21 @@ const Products = () => {
         withCredentials: "true",
       }
     );
-    console.log("products", product?.data);
+
     setProducts(product?.data?.data);
     if (product?.data?.total) {
       setCount(product?.data?.total);
       setFetchTotal(false);
     }
   };
+  const handleChangePage = (event, newPage) => {
+    setPage(newPage);
+  };
 
+  const handleChangeRowsPerPage = (event) => {
+    setRowsPerPage(parseInt(event.target.value, 10));
+    setPage(0);
+  };
   const editProduct = async (id, updatedData) => {
     try {
       await axios.put(`http://localhost:3000/products/${id}`, updatedData, {
@@ -99,6 +121,46 @@ const Products = () => {
             }}
             variant="outlined"
           />
+          <LocalizationProvider dateAdapter={AdapterDayjs}>
+            <Box
+              sx={{
+                width: "100%",
+                height: "100%",
+                display: "flex",
+                justifyContent: "center",
+                position: "relative",
+              }}
+            >
+              <DesktopDatePicker
+                label="Search by date of created"
+                sx={{ width: 260 }}
+                value={searchObj.createdAt || null}
+                onChange={(newValue) => {
+                  // console.log("sssfsdfsdfsdf",newValue)
+                  if (newValue) {
+                    setSearchObj({ ...searchObj, createdAt: newValue });
+                  }
+                }}
+                slotProps={{
+                  field: {
+                    clearable: true,
+                    onClear: () => {
+                      setSearchObj({ ...searchObj, createdAt: null });
+                    },
+                  },
+                }}
+              />
+
+              {cleared && (
+                <Alert
+                  sx={{ position: "absolute", bottom: 0, right: 0 }}
+                  severity="success"
+                >
+                  Field cleared!
+                </Alert>
+              )}
+            </Box>
+          </LocalizationProvider>
         </Box>
         <Stack
           spacing={2}
@@ -120,13 +182,16 @@ const Products = () => {
           >
             Search
           </Button>
-          <Button
-            variant="contained"
-            endIcon={<AddIcon />}
-            onClick={() => setAddModalOpen(true)}
-          >
-            Add
-          </Button>
+          {user.role == "admin" ? (
+            <Button
+              variant="contained"
+              endIcon={<AddIcon />}
+              onClick={() => setAddModalOpen(true)}
+            >
+              Add
+            </Button>
+          ) : null}
+
           <AddProductCard
             open={addModalOpen}
             onClose={() => setAddModalOpen(false)}

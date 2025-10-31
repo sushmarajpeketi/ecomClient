@@ -6,7 +6,7 @@ import { Box, Stack, TextField, Button, ratingClasses } from "@mui/material";
 import SearchIcon from "@mui/icons-material/Search";
 import AddIcon from "@mui/icons-material/Add";
 import { userContext } from "../../context/userContext";
-
+// import { relative } from "@cloudinary/url-gen/qualifiers/flag";
 
 const Users = () => {
   const { user: globalUser } = useContext(userContext);
@@ -19,18 +19,25 @@ const Users = () => {
   const [isChangeInFilter, setIsChangeInFilter] = useState(true);
 
   const pageSetter = (newPage) => {
+   
     setPage(newPage);
+    // setIsChangeInFilter(true);
   };
   const rowsPerPageSetter = (val) => {
+    // setIsChangeInFilter(true)
     setRowsPerPage(val);
     setPage(0);
   };
 
   useEffect(() => {
     fetchUsers();
-  }, [page, rowsPerPage]);
-
+  }, [page]);
+  useEffect(()=>{
+    setIsChangeInFilter(true)
+    fetchUsers();
+  },[rowsPerPage])
   async function fetchUsers() {
+    
     try {
       let queryString = ``;
       if (searchObj?.username) {
@@ -50,15 +57,13 @@ const Users = () => {
       );
       
       setUser(res?.data?.users);
-      // console.log("count", res?.data?.count )
-      if (res?.data?.count || parseInt(res?.data?.count)>=0 ) {
+      
+      if (res?.data?.count  ) {
+
         setLength(res?.data?.count);
         setIsChangeInFilter(false);
       }
-      // if(count<0){
-        
-      // }
-      // console.log("users inside users", users);
+      
     } catch (e) {
       console.log("error is", e);
       toast.error(e.message);
@@ -68,14 +73,14 @@ const Users = () => {
   return (
     <Box
       sx={{
-        // padding: 5,
+      
         width: "100%",
         boxSizing: "border-box",
         minHeight: "100%",
         display: "flex",
         justifyContent: "space-between",
         flexDirection: "column",
-        // position:"relative"
+        
       }}
     >
       <Box sx={{ padding: 5 }}>
@@ -105,12 +110,7 @@ const Users = () => {
               }}
               variant="outlined"
             />
-            {/* <TextField
-              id="filled-search"
-              label="Search by number"
-              type="search"
-              // variant="filled"
-            /> */}
+           
           </Box>
           <Stack
             spacing={2}
@@ -124,7 +124,12 @@ const Users = () => {
               endIcon={<SearchIcon />}
               loading:false
               loadingPosition="start"
-              onClick={fetchUsers}
+              onClick={()=>{
+                setPage(0)
+                setIsChangeInFilter(true)
+                fetchUsers()
+                
+              }}
             >
               Search
             </Button>
@@ -146,13 +151,13 @@ const Users = () => {
       <Box
         sx={{
           width: "100%",
-          // position:"relative",
+          
           height: "50px",
           color: "gray",
           textAlign: "center",
           paddingBottom: 0,
           marginBottom: 0,
-          // bottom:0
+         
         }}
       >
         @all copy rights reserved

@@ -15,7 +15,7 @@ const EditProductCard = ({ product, onSave, onCancel, id }) => {
   const [preview, setPreview] = useState(null);
 
   useEffect(() => {
-    console.log("product", product);
+  
     if (product) {
       setForm({
         name: product.name,
@@ -41,7 +41,7 @@ const EditProductCard = ({ product, onSave, onCancel, id }) => {
     const fd = new FormData();
     fd.append("img", file);
     try {
-      console.log(product.id);
+      
       const res = await axios.post(
         `http://localhost:3000/products/upload-image`,
         fd,

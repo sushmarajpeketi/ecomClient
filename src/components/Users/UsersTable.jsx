@@ -37,9 +37,12 @@ export default function UsersTable({
   pageSetter,
   length,
 }) {
-  const [open, setOpen] = React.useState(false);
-  const handleOpen = () => setOpen(true);
-  const handleClose = () => setOpen(false);
+  const [openDelete, setOpenDelete] = React.useState(false);
+  const handleOpenDelete = () => setOpenDelete(true);
+  const handleCloseDelete = () => setOpenDelete(false);
+  const [openEdit, setOpenEdit] = React.useState(false);
+  const handleOpenEdit = () => setOpenEdit(true);
+  const handleCloseEdit = () => setOpenEdit(false);
   let rows = users.map((el) => {
     return { username: el.username, email: el.email, mobile: el.mobile };
   });
@@ -116,8 +119,6 @@ export default function UsersTable({
                 >
                   {columns.map((column) => {
                     const value = row[column.id];
-                    // console.log("row value",value)
-                    // console.log("column format", column.format())
 
                     return column.id == "actions" ? (
                       <TableCell key={column.id} align={column.align}>
@@ -129,10 +130,10 @@ export default function UsersTable({
                             margin: "auto",
                           }}
                         >
-                          <IconButton color="primary">
+                          <IconButton color="primary" onClick={handleOpenEdit}>
                             <EditDocumentIcon />
                           </IconButton>
-                          <IconButton color="error" onClick={handleOpen}>
+                          <IconButton color="error" onClick={handleOpenDelete}>
                             <DeleteIcon />
                           </IconButton>
                         </Box>
@@ -165,11 +166,25 @@ export default function UsersTable({
         onRowsPerPageChange={handleChangeRowsPerPage}
       />
       <div>
-     
-
         <Modal
-          open={open}
-          onClose={handleClose}
+          open={openDelete}
+          onClose={handleCloseDelete}
+          aria-labelledby="modal-modal-title"
+          aria-describedby="modal-modal-description"
+        >
+          <Box sx={style}>
+            <Typography id="modal-modal-title" variant="h6" component="h2">
+              Do you want to delete the user?
+            </Typography>
+            <Button>Yes</Button>
+            <Button type="error">No</Button>
+          </Box>
+        </Modal>
+      </div>
+      <div>
+        <Modal
+          open={openEdit}
+          onClose={handleCloseEdit}
           aria-labelledby="modal-modal-title"
           aria-describedby="modal-modal-description"
         >

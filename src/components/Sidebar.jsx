@@ -6,7 +6,7 @@ import ListItemButton from "@mui/material/ListItemButton";
 import ListItemIcon from "@mui/material/ListItemIcon";
 import ListItemText from "@mui/material/ListItemText";
 import Divider from "@mui/material/Divider";
-import LocalGroceryStoreIcon from '@mui/icons-material/LocalGroceryStore';
+import LocalGroceryStoreIcon from "@mui/icons-material/LocalGroceryStore";
 import DraftsIcon from "@mui/icons-material/Drafts";
 import GroupOutlinedIcon from "@mui/icons-material/GroupOutlined";
 import { userContext } from "../context/userContext";
@@ -60,12 +60,25 @@ const Sidebar = () => {
           },
         }}
       >
+        <ListItemButton
+          selected={selectedIndex === 0}
+          onClick={(event) => {
+            handleListItemClick(event, 0);
+            navigate("/dashboard");
+          }}
+        >
+          <ListItemIcon>
+            <DraftsIcon />
+          </ListItemIcon>
+          <ListItemText primary="Dashboard" />
+        </ListItemButton>
+        <Divider />
         {user?.role === "admin" && (
           <>
             <ListItemButton
-              selected={selectedIndex === 0}
+              selected={selectedIndex === 1}
               onClick={(event) => {
-                handleListItemClick(event, 0);
+                handleListItemClick(event, 1);
                 navigate("/users");
               }}
               sx={{ display: "flex", flexDirection: "column" }}
@@ -80,21 +93,6 @@ const Sidebar = () => {
         )}
 
         <ListItemButton
-          selected={selectedIndex === 1}
-          onClick={(event) => {
-            handleListItemClick(event, 1);
-            navigate("/dashboard");
-          }}
-        >
-          <ListItemIcon>
-            <DraftsIcon />
-          </ListItemIcon>
-          <ListItemText primary="Dashboard" />
-        </ListItemButton>
-        <Divider />
-
-
-        <ListItemButton
           selected={selectedIndex === 2}
           onClick={(event) => {
             handleListItemClick(event, 2);
@@ -102,7 +100,7 @@ const Sidebar = () => {
           }}
         >
           <ListItemIcon>
-            <LocalGroceryStoreIcon/>
+            <LocalGroceryStoreIcon />
           </ListItemIcon>
           <ListItemText primary="Products" />
         </ListItemButton>

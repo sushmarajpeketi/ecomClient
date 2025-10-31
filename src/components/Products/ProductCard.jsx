@@ -34,7 +34,7 @@ const ProductCard = ({
   onDelete,
 }) => {
   const [open, setOpen] = useState(false);
-  console.log("image", image);
+ 
   const handleSaveEdit = (updatedData) => {
     onEdit(id, updatedData);
     setOpen(false);

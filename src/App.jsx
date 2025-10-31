@@ -8,14 +8,14 @@ import "react-toastify/dist/ReactToastify.css";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import { Box } from "@mui/material";
 import Sidebar from "./components/Sidebar";
-import Users from './components/Users/Users'
+import Users from "./components/Users/Users";
 import RoleProtectedRoute from "./components/RoleProtectedRoute";
 import Dashboard from "./components/Dashboard";
 import { userContext } from "./context/userContext";
 import { Navigate } from "react-router-dom";
 import Unauthorized from "./components/Unauthorized";
 import Products from "./components/Products/Products";
-
+// import { userContext } from "./context/userContext";
 function App() {
   const { user, setUser } = useContext(userContext);
 
@@ -29,32 +29,35 @@ function App() {
         }}
       >
         <Navbar />
-        <Box
-          sx={{
-            height: "calc(100%-70px)",
-            position: "fixed",
-            backgroundColor: "rgba(20, 62, 249, 0.6)",
-            width: "fit-content",
-            overflowY: "auto",
-            overflowX: "hidden",
-            msOverflowStyle: "none",
-            scrollbarWidth: "none",
-            "&::-webkit-scrollbar": { width: 0, height: 0 },
-            "&::-webkit-scrollbar-thumb": { background: "transparent" },
-            zIndex: 1,
-            top: "70px",
-            height: "100%",
-          }}
-        >
-          <Sidebar />
-        </Box>
+        {user.username && (
+          <Box
+            sx={{
+              height: "calc(100%-70px)",
+              position: "fixed",
+              backgroundColor: "rgba(20, 62, 249, 0.6)",
+              width: "fit-content",
+              overflowY: "auto",
+              overflowX: "hidden",
+              msOverflowStyle: "none",
+              scrollbarWidth: "none",
+              "&::-webkit-scrollbar": { width: 0, height: 0 },
+              "&::-webkit-scrollbar-thumb": { background: "transparent" },
+              zIndex: 1,
+              top: "70px",
+              height: "100%",
+            }}
+          >
+            <Sidebar />
+          </Box>
+        )}
+
         <Box
           sx={{
             position: "relative",
             top: "70px",
-            left: "90px",
+            left: user ? "90px" : "0px",
+            width: user ? "calc(100% - 90px)" : "100%",
             height: "calc(100% - 70px)",
-            width: "calc(100% - 90px)",
             overflow: "auto",
           }}
         >
@@ -79,9 +82,13 @@ function App() {
             >
               <Route path="/dashboard" element={<Dashboard />} />
             </Route>
-            <Route path="/products" element={<Products/>}/>
-            <Route path="/unauthorized" element={<Unauthorized />} />
+            <Route
+              element={<RoleProtectedRoute allowedRoles={["admin", "user"]} />}
+            >
+              <Route path="/products" element={<Products />} />
+            </Route>
 
+            <Route path="/unauthorized" element={<Unauthorized />} />
           </Routes>
 
           <ToastContainer />
