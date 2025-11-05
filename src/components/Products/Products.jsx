@@ -98,7 +98,7 @@ const Products = () => {
   return (
     <Box sx={{ padding: 5, display: "flex", flexDirection: "column", gap: 5 }}>
       <Box sx={{ display: "flex", justifyContent: "space-between" }}>
-        <Box sx={{ display: "flex", gap: 2 }}>
+        <Box sx={{ display: "flex", gap: 2,justifyContent:"space-between" }}>
           <TextField
             id="filled-search"
             name="name"
@@ -109,6 +109,8 @@ const Products = () => {
             onChange={(e) => {
               setSearchObj({ ...searchObj, [e.target.name]: e.target.value });
             }}
+            sx={{width:"200px"}}
+            
           />
           <TextField
             id="filled-search"
@@ -116,6 +118,7 @@ const Products = () => {
             label="Search by category"
             type="search"
             value={searchObj?.category}
+            sx={{width:"200px"}}
             onChange={(e) => {
               setSearchObj({ ...searchObj, [e.target.name]: e.target.value });
             }}
@@ -124,8 +127,7 @@ const Products = () => {
           <LocalizationProvider dateAdapter={AdapterDayjs}>
             <Box
               sx={{
-                width: "100%",
-                height: "100%",
+             
                 display: "flex",
                 justifyContent: "center",
                 position: "relative",
@@ -165,7 +167,7 @@ const Products = () => {
         <Stack
           spacing={2}
           direction="row"
-          sx={{ width: "50%" }}
+          sx={{ width: "30%" }}
           justifyContent="flex-end"
           alignItems="center"
         >

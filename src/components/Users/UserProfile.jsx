@@ -53,7 +53,6 @@ const UserProfile = ({ open, toggleDrawer }) => {
         setUser({username:"",email:"",role:"",id:"",mobile:"",img:""});
         toggleDrawer(open);
         navigate("/sign-in");
-        console.log("hey")
         toast.success(res?.data?.message)
         return
     }catch(e){

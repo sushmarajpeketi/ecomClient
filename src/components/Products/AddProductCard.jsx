@@ -154,7 +154,7 @@ const AddProductCard = ({ open, onClose, onAddSuccess }) => {
           />
         </Button>
 
-        {/* ✅ Image Preview */}
+        
         <div style={{ margin: "auto" }}>
           {preview && (
             <img

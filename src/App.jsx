@@ -15,7 +15,11 @@ import { userContext } from "./context/userContext";
 import { Navigate } from "react-router-dom";
 import Unauthorized from "./components/Unauthorized";
 import Products from "./components/Products/Products";
-// import { userContext } from "./context/userContext";
+import Category from "./components/Categories/Category";
+import AddCategory from "./components/Categories/AddCategory";
+import EditCategory from "./components/Categories/EditCategory";
+
+import EditUserPage from "./pages/users/EditUserPage";
 function App() {
   const { user, setUser } = useContext(userContext);
 
@@ -29,7 +33,7 @@ function App() {
         }}
       >
         <Navbar />
-        {user.username && (
+        {user && (
           <Box
             sx={{
               height: "calc(100%-70px)",
@@ -66,7 +70,7 @@ function App() {
             <Route
               path="/sign-in"
               element={
-                user.username ? (
+                user ? (
                   <Navigate to="/dashboard" replace />
                 ) : (
                   <Signin />
@@ -75,6 +79,7 @@ function App() {
             />
             <Route element={<RoleProtectedRoute allowedRoles={["admin"]} />}>
               <Route path="/users" element={<Users />} />
+              <Route path="/users/edit/:id" element={<EditUserPage />} />
             </Route>
 
             <Route
@@ -86,6 +91,14 @@ function App() {
               element={<RoleProtectedRoute allowedRoles={["admin", "user"]} />}
             >
               <Route path="/products" element={<Products />} />
+            </Route>
+            <Route
+              element={<RoleProtectedRoute allowedRoles={["admin", "user"]} />}
+            >
+              <Route path="/categories" element={<Category />} />
+              <Route path="/categories/add" element={<AddCategory />} />
+              <Route path="/categories/edit/:id" element={<EditCategory />} />
+
             </Route>
 
             <Route path="/unauthorized" element={<Unauthorized />} />

@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import { Paper, Box, IconButton } from "@mui/material";
 import Table from "@mui/material/Table";
 import TableBody from "@mui/material/TableBody";
@@ -12,21 +12,13 @@ import DeleteIcon from "@mui/icons-material/Delete";
 import Button from "@mui/material/Button";
 import Typography from "@mui/material/Typography";
 import Modal from "@mui/material/Modal";
-
+import EditUser from "./EditUser";
+import { useNavigate } from "react-router-dom";
 const columns = [
-  { id: "username", label: "User Name", minWidth: "100px" },
-  { id: "email", label: "Email", minWidth: "100px" },
-  {
-    id: "mobile",
-    label: "Mobile",
-    minWidth: "100px",
-    // align: "right",
-  },
-  {
-    id: "actions",
-    label: "Actions",
-    minWidth: "100px",
-  },
+  { id: "username", label: "User Name" },
+  { id: "email", label: "Email" },
+  { id: "mobile", label: "Mobile" },
+  { id: "actions", label: "Actions" },
 ];
 
 export default function UsersTable({
@@ -36,24 +28,34 @@ export default function UsersTable({
   rowsPerPageSetter,
   pageSetter,
   length,
+  onEdit,
 }) {
-  const [openDelete, setOpenDelete] = React.useState(false);
-  const handleOpenDelete = () => setOpenDelete(true);
-  const handleCloseDelete = () => setOpenDelete(false);
-  const [openEdit, setOpenEdit] = React.useState(false);
-  const handleOpenEdit = () => setOpenEdit(true);
-  const handleCloseEdit = () => setOpenEdit(false);
-  let rows = users.map((el) => {
-    return { username: el.username, email: el.email, mobile: el.mobile };
-  });
+  const [openDelete, setOpenDelete] = useState(false);
+  // const [selectedUser, setSelectedUser] = useState(null);
+  // const [openEdit, setOpenEdit] = useState(false);
+
+  const navigate = useNavigate();
+
+  const rows = users.map((el) => ({
+    username: el.username,
+    email: el.email,
+    mobile: el.mobile,
+    id: el._id || el.id, // ✅ FIX: convert _id → id
+  }));
 
   const handleChangePage = (event, newPage) => {
     pageSetter(newPage);
   };
 
   const handleChangeRowsPerPage = (event) => {
-    rowsPerPageSetter(event.target.value);
+    rowsPerPageSetter(parseInt(event.target.value, 10));
   };
+
+  const handleSaveEdit = (id, updatedData) => {
+    onEdit(id, updatedData);
+    setOpenEdit(false);
+  };
+
   const style = {
     position: "absolute",
     top: "50%",
@@ -61,41 +63,22 @@ export default function UsersTable({
     transform: "translate(-50%, -50%)",
     width: 400,
     bgcolor: "background.paper",
-    // border: "2px solid #000",
     boxShadow: 2,
     p: 4,
   };
 
   return (
-    <Paper
-      sx={{
-        // width: "clamp(400px, 80%, 900px)",
-        margin: 5,
-        mx: "auto",
-        // overflow: "hidden",
-        // height: "500px",
-      }}
-    >
-      <TableContainer
-        sx={{
-          maxHeight: 600,
-        }}
-      >
-        <Table stickyHeader aria-label="sticky table">
+    <Paper sx={{ margin: 5, mx: "auto" }}>
+      <TableContainer sx={{ maxHeight: 600 }}>
+        <Table stickyHeader>
           <TableHead>
             <TableRow>
               {columns.map((column) => (
                 <TableCell
                   key={column.id}
-                  align={column.align}
                   style={{
-                    boxSizing: "border-box",
                     textAlign: "center",
-                    width: 120,
-                    whiteSpace: "nowrap",
                     backgroundColor: "lightgray",
-                    // overflow: "hidden",
-                    textOverflow: "ellipsis",
                   }}
                 >
                   {column.label}
@@ -103,100 +86,69 @@ export default function UsersTable({
               ))}
             </TableRow>
           </TableHead>
-          <TableBody>
-            {rows.map((row) => {
-              return (
-                <TableRow
-                  hover
-                  role="checkbox"
-                  tabIndex={-1}
-                  key={row.code}
-                  sx={{
-                    maxWidth: 100,
-                    overflow: "auto",
-                    height: "auto",
-                  }}
-                >
-                  {columns.map((column) => {
-                    const value = row[column.id];
 
-                    return column.id == "actions" ? (
-                      <TableCell key={column.id} align={column.align}>
-                        <Box
-                          sx={{
-                            display: "flex",
-                            justifyContent: "space-between",
-                            width: "50%",
-                            margin: "auto",
-                          }}
-                        >
-                          <IconButton color="primary" onClick={handleOpenEdit}>
-                            <EditDocumentIcon />
-                          </IconButton>
-                          <IconButton color="error" onClick={handleOpenDelete}>
-                            <DeleteIcon />
-                          </IconButton>
-                        </Box>
-                      </TableCell>
-                    ) : (
-                      <TableCell
-                        key={column.id}
-                        align={column.align}
-                        style={{ textAlign: "center" }}
+          <TableBody>
+            {rows.map((row, i) => (
+              <TableRow key={i}>
+                {columns.map((column) =>
+                  column.id === "actions" ? (
+                    <TableCell key={column.id}>
+                      <Box
+                        sx={{
+                          display: "flex",
+                          justifyContent: "center",
+                          gap: 2,
+                        }}
                       >
-                        {column.format && typeof value === "number"
-                          ? column.format(value)
-                          : value}
-                      </TableCell>
-                    );
-                  })}
-                </TableRow>
-              );
-            })}
+                        <IconButton
+                          color="primary"
+                          onClick={() => navigate(`/users/edit/${row.id}`)}
+                        >
+                          <EditDocumentIcon />
+                        </IconButton>
+
+                        <IconButton
+                          color="error"
+                          onClick={() => setOpenDelete(true)}
+                        >
+                          <DeleteIcon />
+                        </IconButton>
+                      </Box>
+                    </TableCell>
+                  ) : (
+                    <TableCell key={column.id} style={{ textAlign: "center" }}>
+                      {row[column.id]}
+                    </TableCell>
+                  )
+                )}
+              </TableRow>
+            ))}
           </TableBody>
         </Table>
       </TableContainer>
+
       <TablePagination
-        rowsPerPageOptions={[5, 10, 25, 100, 1000]}
-        component="div"
+      component="div"
+        rowsPerPageOptions={[5, 10, 25, 100]}
         count={length}
         rowsPerPage={rowsPerPage}
         page={page}
         onPageChange={handleChangePage}
         onRowsPerPageChange={handleChangeRowsPerPage}
       />
-      <div>
-        <Modal
-          open={openDelete}
-          onClose={handleCloseDelete}
-          aria-labelledby="modal-modal-title"
-          aria-describedby="modal-modal-description"
-        >
+
+      {/* EDIT MODAL
+      {selectedUser && (
+        <Modal open={openEdit} onClose={() => setOpenEdit(false)}>
           <Box sx={style}>
-            <Typography id="modal-modal-title" variant="h6" component="h2">
-              Do you want to delete the user?
-            </Typography>
-            <Button>Yes</Button>
-            <Button type="error">No</Button>
+            <EditUser
+              user={selectedUser}
+              onSave={handleSaveEdit}
+              onCancel={() => setOpenEdit(false)}
+            />
           </Box>
         </Modal>
-      </div>
-      <div>
-        <Modal
-          open={openEdit}
-          onClose={handleCloseEdit}
-          aria-labelledby="modal-modal-title"
-          aria-describedby="modal-modal-description"
-        >
-          <Box sx={style}>
-            <Typography id="modal-modal-title" variant="h6" component="h2">
-              Do you want to delete the user?
-            </Typography>
-            <Button>Yes</Button>
-            <Button type="error">No</Button>
-          </Box>
-        </Modal>
-      </div>
+      )} */}
     </Paper>
   );
 }

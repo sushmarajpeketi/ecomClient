@@ -2,134 +2,131 @@ import axios from "axios";
 import React, { useEffect, useContext, useState } from "react";
 import { toast } from "react-toastify";
 import UsersTable from "./UsersTable";
-import { Box, Stack, TextField, Button, ratingClasses } from "@mui/material";
+import { Box, Stack, TextField, Button } from "@mui/material";
 import SearchIcon from "@mui/icons-material/Search";
 import AddIcon from "@mui/icons-material/Add";
 import { userContext } from "../../context/userContext";
-// import { relative } from "@cloudinary/url-gen/qualifiers/flag";
 
 const Users = () => {
   const { user: globalUser } = useContext(userContext);
-  let [length, setLength] = React.useState(0);
-  let [users, setUser] = React.useState([]);
-  const [page, setPage] = React.useState(0);
-  const [rowsPerPage, setRowsPerPage] = React.useState(10);
 
-  const [searchObj, setSearchObj] = useState({});
-  const [isChangeInFilter, setIsChangeInFilter] = useState(true);
+  const [length, setLength] = useState(0);
+  const [users, setUsers] = useState([]);
+  const [page, setPage] = useState(0);
+  const [rowsPerPage, setRowsPerPage] = useState(10);
 
-  const pageSetter = (newPage) => {
-   
-    setPage(newPage);
-    // setIsChangeInFilter(true);
+  const [searchObj, setSearchObj] = useState({
+    username: "",
+    email: "",
+  });
+
+  // ✅ Build query string
+  const buildQueryString = (wantCount) => {
+    let query = "";
+
+    if (searchObj.username?.trim()) {
+      query += `&username=${searchObj.username}`;
+    }
+    if (searchObj.email?.trim()) {
+      query += `&email=${searchObj.email}`;
+    }
+
+    if (wantCount) {
+      query += `&length=true`; // ✅ only request count when needed
+    }
+
+    return query;
   };
-  const rowsPerPageSetter = (val) => {
-    // setIsChangeInFilter(true)
-    setRowsPerPage(val);
-    setPage(0);
-  };
 
-  useEffect(() => {
-    fetchUsers();
-  }, [page]);
-  useEffect(()=>{
-    setIsChangeInFilter(true)
-    fetchUsers();
-  },[rowsPerPage])
-  async function fetchUsers() {
-    
+  // ✅ API to fetch users
+  const fetchUsers = async (wantCount = false) => {
     try {
-      let queryString = ``;
-      if (searchObj?.username) {
-        queryString += `&username=${searchObj?.username}`;
-      }
-      if (searchObj?.email) {
-        queryString += `&email=${searchObj?.email}`;
-      }
-      if (isChangeInFilter) {
-        queryString += `&length=true`;
-      }
+      const queryString = buildQueryString(wantCount);
 
       const res = await axios.get(
-        `http://localhost:3000/users?page=${page}&rows=${rowsPerPage}` +
-          queryString,
+        `http://localhost:3000/users?page=${page}&rows=${rowsPerPage}${queryString}`,
         { withCredentials: true }
       );
-      
-      setUser(res?.data?.users);
-      
-      if (res?.data?.count  ) {
 
-        setLength(res?.data?.count);
-        setIsChangeInFilter(false);
+      setUsers(res?.data?.data?.users || []);
+
+      // ✅ only update count when backend sends it
+      if (res?.data?.data?.count !== undefined) {
+        setLength(res.data.data.count);
       }
-      
     } catch (e) {
-      console.log("error is", e);
       toast.error(e.message);
     }
-  }
+  };
+
+  // ✅ Effect handles pagination + initial load
+  useEffect(() => {
+    if (page === 0) {
+      fetchUsers(true); // ✅ always get count on page 0
+    } else {
+      fetchUsers(false); // ✅ don't request count when changing pages
+    }
+  }, [page, rowsPerPage]);
+
+  // ✅ Search button click
+  const handleSearchClick = () => {
+    setPage(0); // ✅ reset pagination
+    fetchUsers(true); // ✅ get filtered count + data
+  };
+
+  // ✅ Page setter
+  const pageSetter = (newPage) => {
+    setPage(newPage);
+  };
+
+  // ✅ Rows per page setter
+  const rowsPerPageSetter = (val) => {
+    setRowsPerPage(val);
+    setPage(0); // ✅ reset to page 0 always
+  };
+
+  // ✅ Edit handler
+  const editHandler = async (id, data) => {
+    try {
+      await axios.put(`http://localhost:3000/users/${id}`, data);
+      fetchUsers(false); // ✅ only fetch users, not count
+    } catch (e) {
+      console.log(e.message);
+    }
+  };
 
   return (
-    <Box
-      sx={{
-      
-        width: "100%",
-        boxSizing: "border-box",
-        minHeight: "100%",
-        display: "flex",
-        justifyContent: "space-between",
-        flexDirection: "column",
-        
-      }}
-    >
+    <Box sx={{ width: "100%", minHeight: "100%", display: "flex", flexDirection: "column" }}>
       <Box sx={{ padding: 5 }}>
+        {/* ✅ SEARCH BAR */}
         <Box sx={{ display: "flex", justifyContent: "space-between" }}>
           <Box sx={{ display: "flex", gap: 2 }}>
             <TextField
-              id="filled-search"
               name="username"
               label="Search by username"
-              type="search"
               variant="outlined"
-              value={searchObj?.username}
-              onChange={(e) => {
-                setSearchObj({ ...searchObj, [e.target.name]: e.target.value });
-                setIsChangeInFilter(true);
-              }}
+              value={searchObj.username}
+              onChange={(e) =>
+                setSearchObj({ ...searchObj, [e.target.name]: e.target.value })
+              }
             />
+
             <TextField
-              id="filled-search"
               name="email"
               label="Search by email"
-              type="search"
-              value={searchObj?.email}
-              onChange={(e) => {
-                setSearchObj({ ...searchObj, [e.target.name]: e.target.value });
-                setIsChangeInFilter(true);
-              }}
               variant="outlined"
+              value={searchObj.email}
+              onChange={(e) =>
+                setSearchObj({ ...searchObj, [e.target.name]: e.target.value })
+              }
             />
-           
           </Box>
-          <Stack
-            spacing={2}
-            direction="row"
-            sx={{ width: "50%" }}
-            justifyContent="flex-end"
-            alignItems="center"
-          >
+
+          <Stack spacing={2} direction="row" alignItems="center">
             <Button
               variant="outlined"
               endIcon={<SearchIcon />}
-              loading:false
-              loadingPosition="start"
-              onClick={()=>{
-                setPage(0)
-                setIsChangeInFilter(true)
-                fetchUsers()
-                
-              }}
+              onClick={handleSearchClick}
             >
               Search
             </Button>
@@ -139,6 +136,7 @@ const Users = () => {
           </Stack>
         </Box>
 
+        {/* ✅ TABLE */}
         <UsersTable
           users={users}
           page={page}
@@ -146,21 +144,12 @@ const Users = () => {
           rowsPerPageSetter={rowsPerPageSetter}
           pageSetter={pageSetter}
           length={length}
+          onEdit={editHandler}
         />
       </Box>
-      <Box
-        sx={{
-          width: "100%",
-          
-          height: "50px",
-          color: "gray",
-          textAlign: "center",
-          paddingBottom: 0,
-          marginBottom: 0,
-         
-        }}
-      >
-        @all copy rights reserved
+
+      <Box sx={{ textAlign: "center", padding: 1, color: "gray" }}>
+        @all copyrights reserved
       </Box>
     </Box>
   );

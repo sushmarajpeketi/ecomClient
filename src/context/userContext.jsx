@@ -1,42 +1,65 @@
-import { createContext, useState ,useEffect} from "react";
+import { createContext, useState, useEffect, useRef } from "react";
 import axios from "axios";
+// import { setupAuthInterceptor } from "../interceptors/AuthInterceptor";
 
-let userContext = createContext();
+export const userContext = createContext();
 
-let UserProvider = ({ children }) => {
-    const [loading, setLoading] = useState(true);
-    const [user,setUser] = useState({username:"",email:"",role:"",id:"",mobile:"",img:""})
+export const UserProvider = ({ children }) => {
+  const [loading, setLoading] = useState(true);
+  const [user, setUser] = useState(null);
+
+  // ✅ logout function used by interceptor
+  const logout = () => {
+    axios
+      .get("http://localhost:3000/users/logout", { withCredentials: true })
+      .catch(() => {})
+      .finally(() => {
+        setUser(null);
+        window.location.href = "/sign-in";
+      });
+  };
+
+  // ✅ Setup interceptor ONLY once
+  // const interceptorAdded = useRef(false);
+
+  // useEffect(() => {
+  //   if (!interceptorAdded.current) {
+  //     setupAuthInterceptor(logout);  // ✅ only runs once
+  //     interceptorAdded.current = true;
+  //   }
+  // }, []);
+
+  // ✅ Fetch user on load
   useEffect(() => {
     fetchUser();
   }, []);
 
   const fetchUser = async () => {
     try {
-      const userDetails = await axios.get(
+      const res = await axios.get(
         "http://localhost:3000/users/user-info",
-        {
-          withCredentials: true,
-        }
+        { withCredentials: true }
       );
-      setUser(userDetails.data);
+
+      setUser(res.data);
       return;
     } catch (error) {
-       if (error.response?.status === 401) {
-      // Token expired or no token: this is normal, not an error
-      console.log("No valid user session.");
-      setUser({ username: "", email: "", role: "", id: "", mobile: "" });
-      return;
-    }
-      return;
-    }finally{
-        setLoading(false)
+      if (error.response?.status === 401) {
+        console.log("Session expired or not logged in.");
+        setUser(null);
+        return;
+      }
+
+      console.error("Fetch user failed:", error);
+      setUser(null);
+    } finally {
+      setLoading(false);
     }
   };
+
   return (
-    <userContext.Provider value={{ user, setUser,fetchUser,loading,setLoading}}>
+    <userContext.Provider value={{ user, setUser, fetchUser, loading, logout }}>
       {children}
     </userContext.Provider>
   );
 };
-
-export { userContext, UserProvider };

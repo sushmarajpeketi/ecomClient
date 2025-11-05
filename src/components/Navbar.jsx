@@ -25,7 +25,7 @@ const Navbar = () => {
       <div className="nav">
         <p>E-Commerce Website</p>
         <div className="nav-actions">
-          {!user.username ? (
+          {!user ? (
             <ul>
               <li>
                 <Link to="/sign-in">Sign In</Link>
