@@ -118,6 +118,19 @@ const Sidebar = () => {
           <ListItemText primary="Category" />
         </ListItemButton>
         <Divider />
+        <ListItemButton
+          selected={selectedIndex === 4}
+          onClick={(event) => {
+            handleListItemClick(event, 4);
+            navigate("/roles");
+          }}
+        >
+          <ListItemIcon>
+            <LocalGroceryStoreIcon />
+          </ListItemIcon>
+          <ListItemText primary="Roles" />
+        </ListItemButton>
+        <Divider />
       </List>
       <Divider />
     </Box>

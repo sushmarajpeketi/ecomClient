@@ -7,14 +7,10 @@ import { toast } from "react-toastify";
 import { userContext } from "../../context/userContext";
 import CategoryTable from "./CategoryTable";
 import { useNavigate } from "react-router-dom";
-import AddCategory from "./AddCategory";
-
-
-
+import PageHeader from "../PageHeader";
 
 const Category = () => {
   const navigate = useNavigate();
-
   const { user: globalUser } = useContext(userContext);
 
   const [categories, setCategories] = useState([]);
@@ -24,100 +20,90 @@ const Category = () => {
   const [rowsPerPage, setRowsPerPage] = useState(10);
 
   const [searchObj, setSearchObj] = useState({});
-  const [isChangeInFilter, setIsChangeInFilter] = useState(true);
+  const [fetchTotal, setFetchTotal] = useState(true); 
 
   useEffect(() => {
     fetchCategories();
-  }, [page]);
 
-  useEffect(() => {
-    setIsChangeInFilter(true);
-    fetchCategories();
-  }, [rowsPerPage]);
-
-  const pageSetter = (newPage) => setPage(newPage);
-  const rowsPerPageSetter = (val) => {
-    setRowsPerPage(val);
-    setPage(0);
-  };
-
-
-  async function fetchCategories() {
+  }, [page, rowsPerPage]); 
+  const fetchCategories = async () => {
     try {
-      let queryString = ``;
-
-      if (searchObj?.name) queryString += `&name=${searchObj?.name}`;
-      if (searchObj?.status) queryString += `&status=${searchObj?.status}`;
-
-      if (isChangeInFilter) queryString += `&fetchTotal=true`;
+      let queryString = "";
+      if (searchObj?.name) queryString += `&name=${searchObj.name}`;
+      if (searchObj?.status) queryString += `&status=${searchObj.status}`;
+      if (fetchTotal) queryString += "&fetchTotal=true";
 
       const res = await axios.get(
         `http://localhost:3000/category?page=${page}&rows=${rowsPerPage}${queryString}`,
         { withCredentials: true }
       );
 
-      setCategories(res.data.data);
-      if (res.data.total) {
+      setCategories(res.data.data || []);
+      if (res.data.total !== undefined) {
         setTotal(res.data.total);
-        setIsChangeInFilter(false);
+        setFetchTotal(false); 
       }
     } catch (err) {
       toast.error(err.message);
     }
-  }
+  };
 
-
+  const handleSearch = () => {
+    setPage(0);
+    setFetchTotal(true); 
+    fetchCategories();
+  };
 
   const deleteHandler = async (id) => {
     try {
       await axios.delete(`http://localhost:3000/category/${id}`, {
         withCredentials: true,
       });
+      setFetchTotal(true);
       fetchCategories();
       toast.success("Category deleted!");
     } catch (err) {
       toast.error(err.message);
     }
   };
-const handleEdit = (id) => {
-  navigate(`/categories/edit/${id}`);
-};
+
+  const handleEdit = (id) => navigate(`/categories/edit/${id}`);
+
+  const handleChangePage = (newPage) => {
+    setPage(newPage);
+    setFetchTotal(true); 
+  };
+
+  const handleChangeRowsPerPage = (newRows) => {
+    setRowsPerPage(newRows);
+    setPage(0);
+    setFetchTotal(true); 
+  };
+
   return (
-    <Box
-      sx={{
-        width: "100%",
-        minHeight: "100vh",
-        display: "flex",
-        flexDirection: "column",
-        justifyContent: "space-between",
-      }}
-    >
+    <Box sx={{ width: "100%", minHeight: "100vh", display: "flex", flexDirection: "column" }}>
+      
+       
       <Box sx={{ padding: 5 }}>
-        <Box sx={{ display: "flex", justifyContent: "space-between" }}>
-          {/* ✅ Filters */}
+        <Box
+        sx={{ padding: 1, display: "flex", flexDirection: "column", gap: 2 }}
+      >
+        <PageHeader title="Category"  />
+      </Box>
+        <Box sx={{ display: "flex", justifyContent: "space-between", mb: 2 }}>
+          {/* Filters */}
           <Box sx={{ display: "flex", gap: 2 }}>
             <TextField
               name="name"
               label="Search by name"
               variant="outlined"
               value={searchObj?.name || ""}
-              onChange={(e) => {
-                setSearchObj({ ...searchObj, [e.target.name]: e.target.value });
-                setIsChangeInFilter(true);
-              }}
+              onChange={(e) => setSearchObj({ ...searchObj, [e.target.name]: e.target.value })}
             />
           </Box>
 
           <Stack spacing={2} direction="row" alignItems="center">
-            <Button
-              variant="outlined"
-              endIcon={<SearchIcon />}
-              onClick={() => {
-                setPage(0);
-                setIsChangeInFilter(true);
-                fetchCategories();
-              }}
-            >
+            <Button variant="outlined" endIcon={<SearchIcon />} onClick={handleSearch}>
               Search
             </Button>
 
@@ -131,17 +117,15 @@ const handleEdit = (id) => {
           </Stack>
         </Box>
 
-        {/* ✅ Table */}
         <CategoryTable
           categories={categories}
           page={page}
           rowsPerPage={rowsPerPage}
-          rowsPerPageSetter={rowsPerPageSetter}
-          pageSetter={pageSetter}
+          pageSetter={handleChangePage}
+          rowsPerPageSetter={handleChangeRowsPerPage}
           length={total}
           onEdit={handleEdit}
           onDelete={deleteHandler}
-        //   onAdd={addCategory}
         />
       </Box>
 

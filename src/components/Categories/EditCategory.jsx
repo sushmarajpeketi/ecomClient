@@ -1,111 +1,147 @@
-import React, { useState, useEffect } from "react";
+// src/pages/categories/EditCategory.jsx
+import React, { useEffect, useState } from "react";
 import {
   Box,
-  Paper,
+  Card,
+  CardContent,
+  Typography,
   TextField,
   Button,
-  Typography,
-  IconButton,
+  Switch,
+  FormControlLabel,
 } from "@mui/material";
-import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import axios from "axios";
 import { useNavigate, useParams } from "react-router-dom";
 import { toast } from "react-toastify";
+import PageHeader from "../../components/PageHeader";
 
 const EditCategory = () => {
   const { id } = useParams();
   const navigate = useNavigate();
 
+  const [loading, setLoading] = useState(false);
   const [category, setCategory] = useState({
     name: "",
     description: "",
     status: true,
   });
 
-  // ✅ Fetch existing category
-  const fetchCategory = async () => {
+  const loadCategory = async () => {
+    setLoading(true);
     try {
-      const res = await axios.get(`http://localhost:3000/category/${id}`);
-      setCategory(res.data.data);
-    } catch (error) {
+      const res = await axios.get(`http://localhost:3000/categories/${id}`, {
+        withCredentials: true,
+      });
+      const data = res?.data?.data || res?.data;
+      setCategory({
+        name: data?.name || "",
+        description: data?.description || "",
+        status: typeof data?.status === "boolean" ? data.status : true,
+      });
+    } catch (err) {
       toast.error("Failed to load category");
+      console.error(err);
+    } finally {
+      setLoading(false);
     }
   };
 
   useEffect(() => {
-    fetchCategory();
-  }, []);
+    if (id) loadCategory();
+  }, [id]);
 
-  // ✅ Handle field change
   const handleChange = (e) => {
-    setCategory({ ...category, [e.target.name]: e.target.value });
+    setCategory((s) => ({ ...s, [e.target.name]: e.target.value }));
   };
 
-  // ✅ Save category
-  const handleSave = async () => {
-    try {
-      await axios.put(`http://localhost:5000/api/categories/${id}`, category);
+  const handleToggle = (e) => {
+    setCategory((s) => ({ ...s, status: e.target.checked }));
+  };
 
-      toast.success("Category updated successfully!");
+  const handleSave = async () => {
+    setLoading(true);
+    try {
+      await axios.put(`http://localhost:3000/categories/${id}`, category, {
+        withCredentials: true,
+      });
+      toast.success("Category updated successfully");
       navigate("/categories");
-    } catch (error) {
-      toast.error("Update failed!");
+    } catch (err) {
+      toast.error("Update failed");
+      console.error(err);
+    } finally {
+      setLoading(false);
     }
   };
 
   return (
-    <Box
-      sx={{
-        width: "100%",
-        minHeight: "100vh",
-        display: "flex",
-        justifyContent: "center",
-        alignItems: "center",
-        background: "#f5f5f5",
-        padding: 2,
-      }}
-    >
-      <Paper elevation={3} sx={{ p: 4, width: "450px", position: "relative" }}>
-        
-        {/* ✅ Back Button  */}
-        <IconButton
-          onClick={() => navigate("/categories")}
-          sx={{ position: "absolute", top: 15, left: 15, color: "grey" }}
-        >
-          <ArrowBackIcon />
-        </IconButton>
+    <Box sx={{ p: 5 }}>
+      <PageHeader
+        title="Edit Category"
+        crumbs={[
+          { label: "Categories", to: "/categories" },
+          { label: "Edit Category" },
+        ]}
+      />
 
-        <Typography variant="h6" sx={{ mb: 2, textAlign: "center" }}>
-          Edit Category
-        </Typography>
+      <Box sx={{ display: "flex", justifyContent: "center", width: "100%" }}>
+        <Card sx={{ width: "60%", p: 3 }}>
+          <CardContent>
+            <Typography variant="h6" sx={{ mb: 2 }}>
+              Category Details
+            </Typography>
 
-        <TextField
-          fullWidth
-          label="Category Name"
-          name="name"
-          value={category.name}
-          onChange={handleChange}
-          sx={{ mb: 2 }}
-        />
+            <Box
+              sx={{
+                display: "grid",
+                gridTemplateColumns: "1fr 1fr",
+                gap: 3,
+              }}
+            >
+              <TextField
+                label="Category Name"
+                name="name"
+                value={category.name}
+                onChange={handleChange}
+                fullWidth
+              />
+              <TextField
+                label="Description"
+                name="description"
+                value={category.description}
+                onChange={handleChange}
+                fullWidth
+              />
 
-        <TextField
-          fullWidth
-          label="Description"
-          name="description"
-          value={category.description}
-          onChange={handleChange}
-          sx={{ mb: 2 }}
-        />
+              <FormControlLabel
+                control={
+                  <Switch checked={!!category.status} onChange={handleToggle} />
+                }
+                label={category.status ? "Active" : "Inactive"}
+              />
+              <Box />
+            </Box>
+          </CardContent>
+        </Card>
+      </Box>
 
-        <Button
-          variant="contained"
-          fullWidth
-          sx={{ mt: 1 }}
-          onClick={handleSave}
-        >
-          Save Changes
+      <Box
+        sx={{
+          width: "60%",
+          mx: "auto",
+          display: "flex",
+          justifyContent: "flex-end",
+          gap: 2,
+          mt: 3,
+        }}
+      >
+        <Button variant="outlined" onClick={() => navigate("/categories")}>
+          Cancel
         </Button>
-      </Paper>
+        <Button variant="contained" disabled={loading} onClick={handleSave}>
+          {loading ? "Saving..." : "Save"}
+        </Button>
+      </Box>
     </Box>
   );
 };

@@ -143,7 +143,6 @@ const AddProductCard = ({ open, onClose, onAddSuccess }) => {
           fullWidth
         />
 
-        {/* ✅ Image Upload */}
         <Button variant="outlined" component="label">
           Upload Image
           <input

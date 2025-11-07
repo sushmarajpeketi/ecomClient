@@ -137,18 +137,7 @@ export default function UsersTable({
         onRowsPerPageChange={handleChangeRowsPerPage}
       />
 
-      {/* EDIT MODAL
-      {selectedUser && (
-        <Modal open={openEdit} onClose={() => setOpenEdit(false)}>
-          <Box sx={style}>
-            <EditUser
-              user={selectedUser}
-              onSave={handleSaveEdit}
-              onCancel={() => setOpenEdit(false)}
-            />
-          </Box>
-        </Modal>
-      )} */}
+    
     </Paper>
   );
 }

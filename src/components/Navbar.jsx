@@ -37,7 +37,7 @@ const Navbar = () => {
           ) : (
             <>
               <IconButton onClick={()=>toggleDrawer(open)} >
-                <Avatar sx={{ width: 60, height: 60 }} src={user?.img}>{user.username[0].toUpperCase()}</Avatar>
+                <Avatar sx={{ width: 60, height: 60 }} src={user?.image}>{user.username[0].toUpperCase()}</Avatar>
               </IconButton>
               <Drawer open={open} onClose={()=>toggleDrawer(open)} anchor="right" sx={{position:"relative"}}>
                 <UserProfile open={open} toggleDrawer={toggleDrawer} />

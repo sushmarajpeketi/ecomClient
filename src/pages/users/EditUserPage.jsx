@@ -1,8 +1,17 @@
-import React, { useEffect, useState } from "react";
+// src/pages/users/EditUserPage.jsx
+import React, { useEffect, useState, useMemo } from "react";
+import {
+  Box,
+  Card,
+  CardContent,
+  Typography,
+  TextField,
+  Button,
+} from "@mui/material";
 import { useParams, useNavigate } from "react-router-dom";
 import axios from "axios";
-import { Box, TextField, Button } from "@mui/material";
 import { toast } from "react-toastify";
+import PageHeader from "../../components/PageHeader";
 
 const EditUserPage = () => {
   const { id } = useParams();
@@ -13,70 +22,132 @@ const EditUserPage = () => {
     email: "",
     mobile: "",
   });
-
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     const fetchUser = async () => {
+      setLoading(true);
       try {
-        const res = await axios.get(`http://localhost:3000/users/${id}`);
-        const data = res.data.data.user;
-
+        const res = await axios.get(`http://localhost:3000/users/${id}`, {
+          withCredentials: true,
+        });
+        const data = res?.data?.data?.user || res?.data?.data || res?.data;
         setForm({
-          username: data.username,
-          email: data.email,
-          mobile: data.mobile,
+          username: data?.username || "",
+          email: data?.email || "",
+          mobile: data?.mobile || "",
         });
       } catch (err) {
         toast.error("Failed to load user");
+        console.error(err);
+      } finally {
+        setLoading(false);
       }
     };
-
-    fetchUser();
+    if (id) fetchUser();
   }, [id]);
 
-  // ✅ Handle save
+  const handleChange = (e) =>
+    setForm((s) => ({ ...s, [e.target.name]: e.target.value }));
+
+  const invalid = useMemo(() => {
+    const uOK = form.username.trim().length >= 3;
+    const eOK = /.+@.+\..+/.test(form.email.trim());
+    const mOK = /^[0-9]{10}$/.test(String(form.mobile).trim());
+    return !(uOK && eOK && mOK);
+  }, [form]);
+
   const handleSave = async () => {
+    setLoading(true);
     try {
-      await axios.put(`http://localhost:3000/users/${id}`, form);
+      await axios.put(`http://localhost:3000/users/${id}`, form, {
+        withCredentials: true,
+      });
       toast.success("User updated!");
-      navigate("/users"); // redirect back
+      navigate("/users");
     } catch (err) {
-      toast.error("Update failed");
+      toast.error(err?.response?.data?.error || "Update failed");
+      console.error(err);
+    } finally {
+      setLoading(false);
     }
   };
 
   return (
-    <Box sx={{ maxWidth: 500, margin: "50px auto", padding: 4, boxShadow: 3 }}>
-      <h2>Edit User</h2>
-
-      <TextField
-        fullWidth
-        label="Username"
-        value={form.username}
-        sx={{ my: 2 }}
-        onChange={(e) => setForm({ ...form, username: e.target.value })}
+    <Box sx={{ p: 5 }}>
+      <PageHeader
+        title="Edit User"
+        crumbs={[{ label: "Users", to: "/users" }, { label: "Edit User" }]}
       />
 
-      <TextField
-        fullWidth
-        label="Email"
-        value={form.email}
-        sx={{ my: 2 }}
-        onChange={(e) => setForm({ ...form, email: e.target.value })}
-      />
+ 
+      <Box sx={{ display: "flex", justifyContent: "center", width: "100%" }}>
+        <Card sx={{ width: "60%", p: 3 }}>
+          <CardContent>
+            <Typography variant="h6" sx={{ mb: 2 }}>
+              User Details
+            </Typography>
 
-      <TextField
-        fullWidth
-        label="Mobile"
-        value={form.mobile}
-        sx={{ my: 2 }}
-        onChange={(e) => setForm({ ...form, mobile: e.target.value })}
-      />
+ 
+            <Box
+              sx={{
+                display: "grid",
+                gridTemplateColumns: "1fr 1fr",
+                gap: 3,
+              }}
+            >
+              <TextField
+                label="Username"
+                name="username"
+                value={form.username}
+                onChange={handleChange}
+                fullWidth
+                disabled={loading}
+              />
 
-      <Button variant="contained" onClick={handleSave}>Save</Button>
-      <Button variant="text" sx={{ ml: 2 }} onClick={() => navigate("/users")}>
-        Cancel
-      </Button>
+              <TextField
+                label="Email"
+                name="email"
+                value={form.email}
+                onChange={handleChange}
+                fullWidth
+                disabled={loading}
+              />
+
+              <TextField
+                label="Mobile (10 digits)"
+                name="mobile"
+                value={form.mobile}
+                onChange={handleChange}
+                fullWidth
+                disabled={loading}
+              />
+
+      
+              <Box />
+            </Box>
+          </CardContent>
+        </Card>
+      </Box>
+
+  
+      <Box
+        sx={{
+          width: "60%",
+          mx: "auto",
+          display: "flex",
+          justifyContent: "flex-end",
+          gap: 2,
+          mt: 3,
+        }}
+      >
+        <Button variant="outlined" onClick={() => navigate("/users")} disabled={loading}>
+          Cancel
+        </Button>
+        <Button variant="contained" onClick={handleSave} disabled={loading || invalid}>
+          {loading ? "Saving..." : "Save"}
+        </Button>
+      </Box>
     </Box>
   );
 };

@@ -13,13 +13,13 @@ import { toast } from "react-toastify";
 import axios from "axios";
 const UserProfile = ({ open, toggleDrawer }) => {
   const { user, setUser, fetchUser } = useContext(userContext);
-  const [avatarSrc, setAvatarSrc] = useState(user.img);
+  const [avatarSrc, setAvatarSrc] = useState(user.image);
   let navigate = useNavigate();
 
   const handleAvatarChange = async (event) => {
     const file = event.target.files?.[0];
     if (file) {
-      // Read the file as a data URL
+      
       const reader = new FileReader();
       reader.onload = () => {
         setAvatarSrc(reader.result);
@@ -38,7 +38,7 @@ const UserProfile = ({ open, toggleDrawer }) => {
         );
         
         toast.success(res.data.message);
-        console.log("Uploaded successfully:", res.data);
+      
        
       } catch (error) {
         console.error("Upload failed:", error);
@@ -50,13 +50,13 @@ const UserProfile = ({ open, toggleDrawer }) => {
   const logoutButtonHandler = async() => {
     try{
         let res = await axios("http://localhost:3000/users/logout",{withCredentials:true})
-        setUser({username:"",email:"",role:"",id:"",mobile:"",img:""});
+        setUser({username:"",email:"",role:"",id:"",mobile:"",image:""});
         toggleDrawer(open);
         navigate("/sign-in");
         toast.success(res?.data?.message)
         return
     }catch(e){
-       toast.error(e?.response?.data?.message||e?.data?.error||e?.message)
+       toast.error(e?.response?.data?.error||e?.data?.error||e?.message)
     }
   };
   return (

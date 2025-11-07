@@ -18,12 +18,19 @@ import Products from "./components/Products/Products";
 import Category from "./components/Categories/Category";
 import AddCategory from "./components/Categories/AddCategory";
 import EditCategory from "./components/Categories/EditCategory";
-
+import AddProductPage from "./pages/products/AddProductPage";
+import EditProductPage from "./pages/products/EditProductPage";
 import EditUserPage from "./pages/users/EditUserPage";
+import Roles from "./pages/roles/Roles";
+import AddRoles from "./pages/roles/AddRoles";
+import EditRoles from "./pages/roles/EditRoles";
+import ViewRoles from "./pages/roles/ViewRoles";
+import AddUserPage from './pages/users/AddUserPage'
 function App() {
   const { user, setUser } = useContext(userContext);
 
   return (
+    
     <Router>
       <Box
         sx={{
@@ -69,16 +76,11 @@ function App() {
             <Route path="/sign-up" element={<Signup />} />
             <Route
               path="/sign-in"
-              element={
-                user ? (
-                  <Navigate to="/dashboard" replace />
-                ) : (
-                  <Signin />
-                )
-              }
+              element={user ? <Navigate to="/dashboard" replace /> : <Signin />}
             />
             <Route element={<RoleProtectedRoute allowedRoles={["admin"]} />}>
               <Route path="/users" element={<Users />} />
+              <Route path="/users/add" element={<AddUserPage />} />
               <Route path="/users/edit/:id" element={<EditUserPage />} />
             </Route>
 
@@ -92,13 +94,22 @@ function App() {
             >
               <Route path="/products" element={<Products />} />
             </Route>
+            <Route element={<RoleProtectedRoute allowedRoles={["admin"]} />}>
+              <Route path="/products/add" element={<AddProductPage />} />
+              <Route path="/products/edit/:id" element={<EditProductPage />} />
+            </Route>
             <Route
               element={<RoleProtectedRoute allowedRoles={["admin", "user"]} />}
             >
               <Route path="/categories" element={<Category />} />
               <Route path="/categories/add" element={<AddCategory />} />
               <Route path="/categories/edit/:id" element={<EditCategory />} />
-
+            </Route>
+            <Route element={<RoleProtectedRoute allowedRoles={["admin"]} />}>
+              <Route path="/roles" element={<Roles />} />
+              <Route path="/roles/add" element={<AddRoles />} />
+              <Route path="/roles/view/:id" element={<ViewRoles />} />
+              <Route path="/roles/edit/:id" element={<EditRoles />} />
             </Route>
 
             <Route path="/unauthorized" element={<Unauthorized />} />

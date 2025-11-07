@@ -8,7 +8,7 @@ export const UserProvider = ({ children }) => {
   const [loading, setLoading] = useState(true);
   const [user, setUser] = useState(null);
 
-  // ✅ logout function used by interceptor
+
   const logout = () => {
     axios
       .get("http://localhost:3000/users/logout", { withCredentials: true })
@@ -19,17 +19,7 @@ export const UserProvider = ({ children }) => {
       });
   };
 
-  // ✅ Setup interceptor ONLY once
-  // const interceptorAdded = useRef(false);
 
-  // useEffect(() => {
-  //   if (!interceptorAdded.current) {
-  //     setupAuthInterceptor(logout);  // ✅ only runs once
-  //     interceptorAdded.current = true;
-  //   }
-  // }, []);
-
-  // ✅ Fetch user on load
   useEffect(() => {
     fetchUser();
   }, []);

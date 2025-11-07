@@ -6,6 +6,7 @@ import { Box, Stack, TextField, Button } from "@mui/material";
 import SearchIcon from "@mui/icons-material/Search";
 import AddIcon from "@mui/icons-material/Add";
 import { userContext } from "../../context/userContext";
+import PageHeader from "../PageHeader";
 
 const Users = () => {
   const { user: globalUser } = useContext(userContext);
@@ -20,7 +21,6 @@ const Users = () => {
     email: "",
   });
 
-  // ✅ Build query string
   const buildQueryString = (wantCount) => {
     let query = "";
 
@@ -32,13 +32,12 @@ const Users = () => {
     }
 
     if (wantCount) {
-      query += `&length=true`; // ✅ only request count when needed
+      query += `&length=true`;
     }
 
     return query;
   };
 
-  // ✅ API to fetch users
   const fetchUsers = async (wantCount = false) => {
     try {
       const queryString = buildQueryString(wantCount);
@@ -50,7 +49,6 @@ const Users = () => {
 
       setUsers(res?.data?.data?.users || []);
 
-      // ✅ only update count when backend sends it
       if (res?.data?.data?.count !== undefined) {
         setLength(res.data.data.count);
       }
@@ -59,46 +57,52 @@ const Users = () => {
     }
   };
 
-  // ✅ Effect handles pagination + initial load
   useEffect(() => {
     if (page === 0) {
-      fetchUsers(true); // ✅ always get count on page 0
+      fetchUsers(true);
     } else {
-      fetchUsers(false); // ✅ don't request count when changing pages
+      fetchUsers(false);
     }
   }, [page, rowsPerPage]);
 
-  // ✅ Search button click
   const handleSearchClick = () => {
-    setPage(0); // ✅ reset pagination
-    fetchUsers(true); // ✅ get filtered count + data
+    setPage(0);
+    fetchUsers(true);
   };
 
-  // ✅ Page setter
   const pageSetter = (newPage) => {
     setPage(newPage);
   };
 
-  // ✅ Rows per page setter
   const rowsPerPageSetter = (val) => {
     setRowsPerPage(val);
-    setPage(0); // ✅ reset to page 0 always
+    setPage(0);
   };
 
-  // ✅ Edit handler
   const editHandler = async (id, data) => {
     try {
       await axios.put(`http://localhost:3000/users/${id}`, data);
-      fetchUsers(false); // ✅ only fetch users, not count
+      fetchUsers(false);
     } catch (e) {
       console.log(e.message);
     }
   };
 
   return (
-    <Box sx={{ width: "100%", minHeight: "100%", display: "flex", flexDirection: "column" }}>
+    <Box
+      sx={{
+        width: "100%",
+        minHeight: "100%",
+        display: "flex",
+        flexDirection: "column",
+      }}
+    >
       <Box sx={{ padding: 5 }}>
-        {/* ✅ SEARCH BAR */}
+        <Box
+          sx={{ padding: 1, display: "flex", flexDirection: "column", gap: 2 }}
+        >
+          <PageHeader title="Users" />
+        </Box>
         <Box sx={{ display: "flex", justifyContent: "space-between" }}>
           <Box sx={{ display: "flex", gap: 2 }}>
             <TextField
@@ -136,7 +140,6 @@ const Users = () => {
           </Stack>
         </Box>
 
-        {/* ✅ TABLE */}
         <UsersTable
           users={users}
           page={page}
