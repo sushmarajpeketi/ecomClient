@@ -1,4 +1,3 @@
-// src/components/roles/RolesTable.jsx
 import React from "react";
 import {
   Paper,
@@ -32,50 +31,47 @@ const RolesTable = ({
   sort,
   order,
   onSort,
+  onToggleActive,
 }) => {
   const navigate = useNavigate();
   const noData = roles.length === 0 && !loading;
 
   const headerCellSx = {
     fontWeight: 700,
-    backgroundColor: "rgba(0,0,0,0.04)",
-    backdropFilter: "saturate(100%)",
+    color: "#fff",
+    backgroundColor: "#1f2937",
+    "& .MuiTableSortLabel-root": { color: "#fff !important" },
+    "& .MuiTableSortLabel-root:hover": { color: "#fff !important" },
+    "& .MuiTableSortLabel-root.Mui-active": { color: "#fff !important" },
+    "& .MuiTableSortLabel-icon": { color: "#fff !important", opacity: 1 },
+    "& .MuiTableSortLabel-iconDirectionAsc": { color: "#fff !important" },
+    "& .MuiTableSortLabel-iconDirectionDesc": { color: "#fff !important" },
   };
 
+  const sortableHeader = (field, label, inactiveDir = "asc", align = "center") => (
+    <TableCell align={align} sx={headerCellSx}>
+      <TableSortLabel
+        hideSortIcon={false}
+        active={sort === field}
+        direction={sort === field ? (order === "asc" ? "asc" : "desc") : inactiveDir}
+        onClick={() => onSort?.(field)}
+      >
+        {label}
+      </TableSortLabel>
+    </TableCell>
+  );
+
   return (
-    <Paper sx={{ width: "100%", overflow: "hidden" }}>
+    <Paper sx={{ width: "100%", overflow: "hidden", mt: 1 }}>
       <TableContainer sx={{ maxHeight: 640 }}>
         <Table stickyHeader size="small" sx={{ "& td, & th": { fontSize: "0.88rem" } }}>
           <TableHead>
             <TableRow>
-              <TableCell align="center" sx={headerCellSx}>
-                <TableSortLabel
-                  active={sort === "name"}
-                  direction={sort === "name" ? (order === "asc" ? "asc" : "desc") : "asc"}
-                  onClick={() => onSort?.("name")}
-                >
-                  Role Name
-                </TableSortLabel>
-              </TableCell>
-
-              <TableCell align="center" sx={headerCellSx}>Description</TableCell>
-
+              {sortableHeader("name", "Role Name")}
+              {sortableHeader("description", "Description")}
               <TableCell align="center" sx={headerCellSx}>Status</TableCell>
-
-              <TableCell align="center" sx={headerCellSx}>
-                <TableSortLabel
-                  active={sort === "createdAt"}
-                  direction={sort === "createdAt" ? (order === "asc" ? "asc" : "desc") : "desc"}
-                  onClick={() => onSort?.("createdAt")}
-                >
-                  Created On
-                </TableSortLabel>
-              </TableCell>
-
-            
-              <TableCell align="right" sx={{ ...headerCellSx, width: 120 }}>
-                Actions
-              </TableCell>
+              {sortableHeader("createdAt", "Created On", "desc")}
+              <TableCell align="right" sx={{ ...headerCellSx, width: 120 }}>Actions</TableCell>
             </TableRow>
           </TableHead>
 
@@ -88,44 +84,35 @@ const RolesTable = ({
               </TableRow>
             ) : (
               roles.map((r) => {
-                const id = r.id || r._id; 
+                const id = r.id || r._id;
                 return (
                   <TableRow key={id} hover>
                     <TableCell align="center">{r.name}</TableCell>
                     <TableCell align="center">{r.description?.trim() || "-"}</TableCell>
-
-                    
                     <TableCell align="center">
                       <Stack direction="row" alignItems="center" justifyContent="center" spacing={1}>
-                        <Switch size="small" checked={!!r.isActive} disabled inputProps={{ "aria-readonly": true }} />
+                        <Switch
+                          size="small"
+                          checked={!!r.isActive}
+                          onChange={() => onToggleActive?.(id, !r.isActive)}
+                          inputProps={{ "aria-label": "toggle active" }}
+                        />
                       </Stack>
                     </TableCell>
-
                     <TableCell align="center">
                       {r.createdAt ? new Date(r.createdAt).toLocaleDateString() : "-"}
                     </TableCell>
-
-                  
                     <TableCell align="right" sx={{ whiteSpace: "nowrap" }}>
                       <Tooltip title="View">
                         <span>
-                          <IconButton
-                            size="small"
-                            aria-label="view role"
-                            onClick={() => navigate(`/roles/view/${id}`)}
-                          >
+                          <IconButton size="small" aria-label="view role" onClick={() => navigate(`/roles/view/${id}`)}>
                             <VisibilityOutlinedIcon fontSize="small" />
                           </IconButton>
                         </span>
                       </Tooltip>
-
                       <Tooltip title="Edit">
                         <span>
-                          <IconButton
-                            size="small"
-                            aria-label="edit role"
-                            onClick={() => navigate(`/roles/edit/${id}`)}
-                          >
+                          <IconButton size="small" aria-label="edit role" onClick={() => navigate(`/roles/edit/${id}`)}>
                             <EditOutlinedIcon fontSize="small" />
                           </IconButton>
                         </span>

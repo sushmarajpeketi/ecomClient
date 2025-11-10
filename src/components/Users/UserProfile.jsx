@@ -19,7 +19,6 @@ const UserProfile = ({ open, toggleDrawer }) => {
   const handleAvatarChange = async (event) => {
     const file = event.target.files?.[0];
     if (file) {
-      
       const reader = new FileReader();
       reader.onload = () => {
         setAvatarSrc(reader.result);
@@ -36,27 +35,34 @@ const UserProfile = ({ open, toggleDrawer }) => {
             withCredentials: true,
           }
         );
-        
+
         toast.success(res.data.message);
-      
-       
       } catch (error) {
         console.error("Upload failed:", error);
         toast.error(error?.response?.data?.error || error.message);
       }
-      return
+      return;
     }
   };
-  const logoutButtonHandler = async() => {
-    try{
-        let res = await axios("http://localhost:3000/users/logout",{withCredentials:true})
-        setUser({username:"",email:"",role:"",id:"",mobile:"",image:""});
-        toggleDrawer(open);
-        navigate("/sign-in");
-        toast.success(res?.data?.message)
-        return
-    }catch(e){
-       toast.error(e?.response?.data?.error||e?.data?.error||e?.message)
+  const logoutButtonHandler = async () => {
+    try {
+      let res = await axios("http://localhost:3000/users/logout", {
+        withCredentials: true,
+      });
+      setUser({
+        username: "",
+        email: "",
+        role: "",
+        id: "",
+        mobile: "",
+        image: "",
+      });
+      toggleDrawer(open);
+      navigate("/sign-in");
+      toast.success(res?.data?.message);
+      return;
+    } catch (e) {
+      toast.error(e?.response?.data?.error || e?.data?.error || e?.message);
     }
   };
   return (
@@ -71,13 +77,13 @@ const UserProfile = ({ open, toggleDrawer }) => {
           alignItems: "center",
         }}
       >
-        <span style={{ fontFamily: "cursive", marginLeft: "20px" }}>
-          User Profile
-        </span>
-        <IconButton onClick={() => {
-          toggleDrawer(open)
-          fetchUser()
-          }}>
+        <span style={{ marginLeft: "20px",fontWeight:800,fontSize:20,fontFamily: "Poppins, sans-serif", fontWeight: 600 }}>User Profile</span>
+        <IconButton
+          onClick={() => {
+            toggleDrawer(open);
+            fetchUser();
+          }}
+        >
           <CloseIcon />
         </IconButton>
       </Box>
@@ -154,10 +160,13 @@ const UserProfile = ({ open, toggleDrawer }) => {
         }}
       >
         <Typography
-          sx={{ display: "inline", gridArea: "myArea1", color: "rgba(20, 62, 249, 1)" }}
+          sx={{
+            display: "inline",
+            gridArea: "myArea1",
+            color: "black",
+          }}
           variant="body1"
           fontWeight="light"
-          fontFamily="cursive"
         >
           Name:
         </Typography>
@@ -175,10 +184,13 @@ const UserProfile = ({ open, toggleDrawer }) => {
           {user?.username}
         </Typography>
         <Typography
-          sx={{ display: "inline", gridArea: "myArea3", color: "rgba(20, 62, 249, 1)" }}
+          sx={{
+            display: "inline",
+            gridArea: "myArea3",
+            color: "black",
+          }}
           variant="body"
           fontWeight="light"
-          fontFamily="cursive"
         >
           Email:
         </Typography>
@@ -195,10 +207,13 @@ const UserProfile = ({ open, toggleDrawer }) => {
           {user?.email}
         </Typography>
         <Typography
-          sx={{ display: "inline", gridArea: "myArea5", color: "rgba(20, 62, 249, 1)" }}
+          sx={{
+            display: "inline",
+            gridArea: "myArea5",
+            color: "black",
+          }}
           variant="body"
           fontWeight="light"
-          fontFamily="cursive"
         >
           Mobile:
         </Typography>
@@ -219,7 +234,6 @@ const UserProfile = ({ open, toggleDrawer }) => {
       <Box
         sx={{
           position: "absolute",
-          fontFamily: "cursive",
           bottom: 0,
           right: 0,
           display: "flex",
@@ -231,11 +245,10 @@ const UserProfile = ({ open, toggleDrawer }) => {
       >
         <Button
           sx={{
-            color: "rgba(20, 62, 249, 1)",
-            fontFamily: "cursive",
+            color: "black",
             "&:hover": {
               borderColor: "rgba(87, 159, 179, 0.1)",
-              backgroundColor: "rgba(96, 173, 215, 0.5)",
+              backgroundColor: "rgba(30, 31, 31, 0.5)",
             },
           }}
           variant="text"
@@ -244,11 +257,11 @@ const UserProfile = ({ open, toggleDrawer }) => {
         </Button>
         <Button
           sx={{
-            color: "rgba(20, 62, 249, 1)",
-            fontFamily: "cursive",
+            color: "black",
+
             "&:hover": {
               borderColor: "rgba(87, 159, 179, 0.1)",
-              backgroundColor: "rgba(96, 173, 215, 0.5)",
+              backgroundColor: "rgba(30, 31, 31, 0.5)",
             },
           }}
           onClick={logoutButtonHandler}

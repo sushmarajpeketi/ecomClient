@@ -1,5 +1,5 @@
 // src/pages/users/EditUserPage.jsx
-import React, { useEffect, useState, useMemo } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import {
   Box,
   Card,
@@ -7,11 +7,19 @@ import {
   Typography,
   TextField,
   Button,
+  FormControl,
+  InputLabel,
+  Select,
+  MenuItem,
+  Snackbar,
+  Alert,
+  Divider,
 } from "@mui/material";
 import { useParams, useNavigate } from "react-router-dom";
 import axios from "axios";
-import { toast } from "react-toastify";
 import PageHeader from "../../components/PageHeader";
+
+const API_BASE = "http://localhost:3000";
 
 const EditUserPage = () => {
   const { id } = useParams();
@@ -22,132 +30,266 @@ const EditUserPage = () => {
     email: "",
     mobile: "",
   });
-  const [loading, setLoading] = useState(false);
+
+  const [roles, setRoles] = useState([]);
+  const [selectedRoleId, setSelectedRoleId] = useState("");
+
+  const [bootLoading, setBootLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
+
+  const [toast, setToast] = useState({
+    open: false,
+    message: "",
+    severity: "success",
+  });
+  const openToast = (message, severity = "success") =>
+    setToast({ open: true, message, severity });
+  const closeToast = () => setToast((t) => ({ ...t, open: false }));
 
   useEffect(() => {
-    const fetchUser = async () => {
-      setLoading(true);
+    let mounted = true;
+
+    const load = async () => {
+      setBootLoading(true);
       try {
-        const res = await axios.get(`http://localhost:3000/users/${id}`, {
+        const userRes = await axios.get(`${API_BASE}/users/${id}`, {
           withCredentials: true,
         });
-        const data = res?.data?.data?.user || res?.data?.data || res?.data;
+        const user =
+          userRes?.data?.user ||
+          userRes?.data?.data?.user ||
+          userRes?.data?.data ||
+          userRes?.data ||
+          {};
+
+        if (!mounted) return;
+
         setForm({
-          username: data?.username || "",
-          email: data?.email || "",
-          mobile: data?.mobile || "",
+          username: user?.username || "",
+          email: user?.email || "",
+          mobile: user?.mobile || "",
         });
+
+        const rolesRes = await axios.get(`${API_BASE}/roles`, {
+          withCredentials: true,
+        });
+        const roleList = (rolesRes?.data?.data?.roles ||
+          rolesRes?.data?.data ||
+          rolesRes?.data ||
+          [])
+          .map((r) => ({ _id: r?._id ?? r?.id, name: r?.name }))
+          .filter((r) => r._id && r.name);
+
+        setRoles(roleList);
+
+        const roleNameFromUser = user?.role || "";
+        const match =
+          roleList.find(
+            (r) =>
+              r.name?.toLowerCase() === String(roleNameFromUser).toLowerCase()
+          ) || null;
+        setSelectedRoleId(match?._id || "");
+
+        openToast("User loaded", "success");
       } catch (err) {
-        toast.error("Failed to load user");
-        console.error(err);
+        openToast(
+          err?.response?.data?.message ||
+            err?.response?.data?.error ||
+            "Failed to load user",
+          "error"
+        );
       } finally {
-        setLoading(false);
+        if (mounted) setBootLoading(false);
       }
     };
-    if (id) fetchUser();
+
+    if (id) load();
+    return () => {
+      mounted = false;
+    };
   }, [id]);
 
   const handleChange = (e) =>
     setForm((s) => ({ ...s, [e.target.name]: e.target.value }));
 
+  const handleRoleChange = (e) => setSelectedRoleId(e.target.value);
+
   const invalid = useMemo(() => {
     const uOK = form.username.trim().length >= 3;
     const eOK = /.+@.+\..+/.test(form.email.trim());
     const mOK = /^[0-9]{10}$/.test(String(form.mobile).trim());
-    return !(uOK && eOK && mOK);
-  }, [form]);
+    const rOK = !!selectedRoleId;
+    return !(uOK && eOK && mOK && rOK);
+  }, [form, selectedRoleId]);
 
   const handleSave = async () => {
-    setLoading(true);
+    setSaving(true);
     try {
-      await axios.put(`http://localhost:3000/users/${id}`, form, {
+      const payload = { ...form, role: selectedRoleId };
+      await axios.put(`${API_BASE}/users/${id}`, payload, {
         withCredentials: true,
       });
-      toast.success("User updated!");
-      navigate("/users");
+      openToast("User updated successfully!", "success");
+      setTimeout(() => navigate("/users"), 600);
     } catch (err) {
-      toast.error(err?.response?.data?.error || "Update failed");
-      console.error(err);
+      openToast(
+        err?.response?.data?.message ||
+          err?.response?.data?.error ||
+          "Update failed",
+        "error"
+      );
     } finally {
-      setLoading(false);
+      setSaving(false);
     }
   };
 
+  const crumbs = [{ label: "Users", to: "/users" }, { label: "Edit User" }];
+
   return (
-    <Box sx={{ p: 5 }}>
-      <PageHeader
-        title="Edit User"
-        crumbs={[{ label: "Users", to: "/users" }, { label: "Edit User" }]}
-      />
-
- 
-      <Box sx={{ display: "flex", justifyContent: "center", width: "100%" }}>
-        <Card sx={{ width: "60%", p: 3 }}>
-          <CardContent>
-            <Typography variant="h6" sx={{ mb: 2 }}>
-              User Details
-            </Typography>
-
- 
-            <Box
-              sx={{
-                display: "grid",
-                gridTemplateColumns: "1fr 1fr",
-                gap: 3,
-              }}
-            >
-              <TextField
-                label="Username"
-                name="username"
-                value={form.username}
-                onChange={handleChange}
-                fullWidth
-                disabled={loading}
-              />
-
-              <TextField
-                label="Email"
-                name="email"
-                value={form.email}
-                onChange={handleChange}
-                fullWidth
-                disabled={loading}
-              />
-
-              <TextField
-                label="Mobile (10 digits)"
-                name="mobile"
-                value={form.mobile}
-                onChange={handleChange}
-                fullWidth
-                disabled={loading}
-              />
-
-      
-              <Box />
-            </Box>
-          </CardContent>
-        </Card>
-      </Box>
-
-  
+    <Box
+      sx={{
+        height: "100%",
+        display: "flex",
+        flexDirection: "column",
+        fontSize: "0.85rem",
+      }}
+    >
       <Box
         sx={{
-          width: "60%",
-          mx: "auto",
-          display: "flex",
-          justifyContent: "flex-end",
-          gap: 2,
-          mt: 3,
+          position: "sticky",
+          top: 0,
+          zIndex: 2,
+          bgcolor: "background.paper",
+          borderBottom: "1px solid",
+          borderColor: "divider",
+          px: 2,
+          py: 0.75,
         }}
       >
-        <Button variant="outlined" onClick={() => navigate("/users")} disabled={loading}>
-          Cancel
-        </Button>
-        <Button variant="contained" onClick={handleSave} disabled={loading || invalid}>
-          {loading ? "Saving..." : "Save"}
-        </Button>
+        <PageHeader title="Edit User" crumbs={crumbs} fontSize="1rem" />
       </Box>
+
+      <Box sx={{ flex: 1, overflowY: "auto", px: 3, py: 2 }}>
+        <Box sx={{ display: "flex", justifyContent: "center" }}>
+          <Card sx={{ width: "60%", p: 2 }}>
+            <CardContent sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
+              <Typography sx={{ fontWeight: 600, fontSize: "0.9rem" }}>
+                User Details
+              </Typography>
+
+              <Box
+                sx={{
+                  display: "grid",
+                  gridTemplateColumns: "1fr 1fr",
+                  gap: 2,
+                  opacity: bootLoading ? 0.6 : 1,
+                  pointerEvents: bootLoading ? "none" : "auto",
+                }}
+              >
+                <TextField
+                  label="Username"
+                  name="username"
+                  value={form.username}
+                  onChange={handleChange}
+                  size="small"
+                  fullWidth
+                />
+                <TextField
+                  label="Email"
+                  name="email"
+                  value={form.email}
+                  onChange={handleChange}
+                  size="small"
+                  fullWidth
+                />
+                <TextField
+                  label="Mobile (10 digits)"
+                  name="mobile"
+                  value={form.mobile}
+                  onChange={handleChange}
+                  size="small"
+                  fullWidth
+                />
+                <FormControl fullWidth size="small">
+                  <InputLabel id="role-label">Role</InputLabel>
+                  <Select
+                    labelId="role-label"
+                    label="Role"
+                    value={selectedRoleId}
+                    onChange={handleRoleChange}
+                    MenuProps={{ PaperProps: { style: { maxHeight: 240 } } }}
+                  >
+                    {roles.map((r) => (
+                      <MenuItem key={r._id} value={r._id}>
+                        {r.name}
+                      </MenuItem>
+                    ))}
+                  </Select>
+                </FormControl>
+              </Box>
+
+              <Divider />
+            </CardContent>
+          </Card>
+        </Box>
+
+        <Box
+          sx={{
+            width: "60%",
+            mx: "auto",
+            display: "flex",
+            justifyContent: "flex-end",
+            gap: 1.5,
+            mt: 2,
+          }}
+        >
+          <Button
+            variant="outlined"
+            size="small"
+            onClick={() => navigate("/users")}
+            disabled={saving}
+          >
+            Cancel
+          </Button>
+          <Button
+            variant="contained"
+            size="small"
+            onClick={handleSave}
+            disabled={saving || bootLoading || invalid}
+          >
+            {saving ? "Saving..." : "Save User"}
+          </Button>
+        </Box>
+      </Box>
+
+      <Box
+        sx={{
+          textAlign: "center",
+          py: 1,
+          fontSize: "0.7rem",
+          color: "text.secondary",
+          borderTop: "1px solid",
+          borderColor: "divider",
+        }}
+      >
+        © {new Date().getFullYear()} ecom
+      </Box>
+
+      <Snackbar
+        open={toast.open}
+        autoHideDuration={2500}
+        onClose={closeToast}
+        anchorOrigin={{ vertical: "top", horizontal: "center" }}
+      >
+        <Alert
+          onClose={closeToast}
+          severity={toast.severity}
+          variant="filled"
+          sx={{ width: "100%" }}
+        >
+          {toast.message}
+        </Alert>
+      </Snackbar>
     </Box>
   );
 };

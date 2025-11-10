@@ -48,7 +48,6 @@ const Sidebar = () => {
             fontWeight: 300,
           },
           "& .MuiTypography-root": {
-            fontFamily: "cursive",
             fontSize: "50%",
             fontWeight: 100,
             color: "white",

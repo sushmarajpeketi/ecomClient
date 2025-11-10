@@ -1,16 +1,25 @@
 import React, { useEffect, useState, useContext } from "react";
 import axios from "axios";
-import { Box, Stack, TextField, Button, Dialog, DialogActions, DialogContent, DialogTitle } from "@mui/material";
+import {
+  Box,
+  Stack,
+  TextField,
+  Button,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogTitle,
+} from "@mui/material";
 import SearchIcon from "@mui/icons-material/Search";
 import AddIcon from "@mui/icons-material/Add";
 import dayjs from "dayjs";
 import { useNavigate } from "react-router-dom";
-import ProductsTable from "./ProductsTable";
+import ProductsTable from "../../components/Products/ProductsTable";
 import { userContext } from "../../context/userContext";
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import { DesktopDatePicker } from "@mui/x-date-pickers/DesktopDatePicker";
-import PageHeader from "../PageHeader";
+import PageHeader from "../../components/PageHeader";
 
 const Products = () => {
   const { user } = useContext(userContext);
@@ -37,16 +46,32 @@ const Products = () => {
 
   const buildQuery = (fetchTotalParam = true, overrides = {}) => {
     const p = new URLSearchParams();
-    const current = { page, rows: rowsPerPage, sort, order, searchObj, ...overrides };
+    const current = {
+      page,
+      rows: rowsPerPage,
+      sort,
+      order,
+      searchObj,
+      ...overrides,
+    };
     p.set("page", current.page);
     p.set("rows", current.rows);
     p.set("sort", current.sort);
     p.set("order", current.order);
     if (current.searchObj.name) p.set("name", current.searchObj.name.trim());
-    if (current.searchObj.createdAt && dayjs(current.searchObj.createdAt).isValid())
-      p.set("createdAt", dayjs(current.searchObj.createdAt).format("YYYY-MM-DD"));
-    if (current.searchObj.priceMin !== "") p.set("priceMin", current.searchObj.priceMin);
-    if (current.searchObj.priceMax !== "") p.set("priceMax", current.searchObj.priceMax);
+    if (
+      current.searchObj.createdAt &&
+      dayjs(current.searchObj.createdAt).isValid()
+    ) {
+      p.set(
+        "createdAt",
+        dayjs(current.searchObj.createdAt).format("YYYY-MM-DD")
+      );
+    }
+    if (current.searchObj.priceMin !== "")
+      p.set("priceMin", current.searchObj.priceMin);
+    if (current.searchObj.priceMax !== "")
+      p.set("priceMax", current.searchObj.priceMax);
     if (fetchTotalParam) p.set("fetchTotal", "true");
     return `?${p.toString()}`;
   };
@@ -54,7 +79,10 @@ const Products = () => {
   const fetchProducts = async (fetchTotalParam = true, overrides = {}) => {
     setLoading(true);
     try {
-      const url = `http://localhost:3000/products${buildQuery(fetchTotalParam, overrides)}`;
+      const url = `http://localhost:3000/products${buildQuery(
+        fetchTotalParam,
+        overrides
+      )}`;
       const res = await axios.get(url, { withCredentials: true });
       setProducts(res?.data?.data || []);
       if (res?.data?.total !== undefined) setCount(res.data.total);
@@ -73,7 +101,9 @@ const Products = () => {
   };
 
   const handleDeleteConfirm = async () => {
-    await axios.delete(`http://localhost:3000/products/${deleteId}`, { withCredentials: true });
+    await axios.delete(`http://localhost:3000/products/${deleteId}`, {
+      withCredentials: true,
+    });
     setDeleteOpen(false);
     const nextPage = products.length === 1 && page > 0 ? page - 1 : page;
     setPage(nextPage);
@@ -91,7 +121,8 @@ const Products = () => {
   };
 
   const handleClear = () => {
-    setSearchObj({ name: "", createdAt: null, priceMin: "", priceMax: "" });
+    const cleared = { name: "", createdAt: null, priceMin: "", priceMax: "" };
+    setSearchObj(cleared);
     setSort("createdAt");
     setOrder("desc");
     setRowsPerPage(10);
@@ -101,7 +132,7 @@ const Products = () => {
       rows: 10,
       sort: "createdAt",
       order: "desc",
-      searchObj: { name: "", createdAt: null, priceMin: "", priceMax: "" },
+      searchObj: cleared,
     });
   };
 
@@ -132,56 +163,87 @@ const Products = () => {
 
   return (
     <Box sx={{ height: "100%", display: "flex", flexDirection: "column" }}>
-      <Box sx={{ px: 2, pt: 1 }}>
-        <PageHeader title="Products" />
-        <Stack direction="row" spacing={2} alignItems="center" sx={{ mt: 1, flexWrap: "wrap" }}>
-          <TextField
-            label="Product name"
-            size="small"
-            value={searchObj.name}
-            onChange={(e) => setSearchObj((s) => ({ ...s, name: e.target.value }))}
-            sx={{ minWidth: 240 }}
-          />
-          <LocalizationProvider dateAdapter={AdapterDayjs}>
-            <DesktopDatePicker
-              label="Created on"
-              value={searchObj.createdAt || null}
-              onChange={(v) => setSearchObj((s) => ({ ...s, createdAt: v }))}
-              slotProps={{ textField: { size: "small" } }}
-            />
-          </LocalizationProvider>
-          <TextField
-            label="Min price"
-            size="small"
-            type="number"
-            value={searchObj.priceMin}
-            onChange={(e) => setSearchObj((s) => ({ ...s, priceMin: e.target.value }))}
-            sx={{ width: 140 }}
-          />
-          <TextField
-            label="Max price"
-            size="small"
-            type="number"
-            value={searchObj.priceMax}
-            onChange={(e) => setSearchObj((s) => ({ ...s, priceMax: e.target.value }))}
-            sx={{ width: 140 }}
-          />
-          <Box sx={{ flex: 1 }} />
-          <Stack direction="row" spacing={1.25} alignItems="center">
-            <Button variant="contained" size="small" onClick={handleSearch} endIcon={<SearchIcon />}>
-              Search
-            </Button>
-            <Button variant="outlined" size="small" onClick={handleClear}>
-              Clear
-            </Button>
-            {user?.role === "admin" && (
-              <Button variant="contained" size="small" onClick={handleAddNavigate} endIcon={<AddIcon />}>
-                Add
-              </Button>
-            )}
-          </Stack>
-        </Stack>
+      <Box
+        sx={{ px: 2, pt: 1, borderBottom: "1px solid", borderColor: "divider" }}
+      >
+        <PageHeader title="Products" crumbs={[{ label: "Products" }]} />
       </Box>
+
+      <Stack
+        direction="row"
+        spacing={2}
+        alignItems="center"
+        sx={{ mt: 2, flexWrap: "wrap" }}
+        mr={2}
+        ml={2}
+      >
+        <TextField
+          label="Product name"
+          size="small"
+          value={searchObj.name}
+          onChange={(e) =>
+            setSearchObj((s) => ({ ...s, name: e.target.value }))
+          }
+          sx={{ minWidth: 240 }}
+        />
+        <LocalizationProvider dateAdapter={AdapterDayjs}>
+          <DesktopDatePicker
+            label="Created on"
+            value={searchObj.createdAt || null}
+            onChange={(v) => setSearchObj((s) => ({ ...s, createdAt: v }))}
+            slotProps={{ textField: { size: "small" } }}
+          />
+        </LocalizationProvider>
+        <TextField
+          label="Min price"
+          size="small"
+          type="number"
+          value={searchObj.priceMin}
+          onChange={(e) =>
+            setSearchObj((s) => ({ ...s, priceMin: e.target.value }))
+          }
+          sx={{ width: 140 }}
+        />
+        <TextField
+          label="Max price"
+          size="small"
+          type="number"
+          value={searchObj.priceMax}
+          onChange={(e) =>
+            setSearchObj((s) => ({ ...s, priceMax: e.target.value }))
+          }
+          sx={{ width: 140 }}
+        />
+        <Box sx={{ flex: 1 }} />
+        <Stack direction="row" spacing={1.25} alignItems="center">
+          <Button
+            variant="outlined"
+            size="small"
+            onClick={handleSearch}
+            endIcon={<SearchIcon />}
+            sx={{
+              borderColor: "grey.800",
+              color: "grey.800",
+              "&:hover": { borderColor: "grey.900", color: "grey.900" },
+            }}
+          >
+            Search
+          </Button>
+          <Button variant="outlined" size="small" onClick={handleClear}>
+            Clear
+          </Button>
+          {user?.role === "admin" && (
+            <Button
+              variant="contained"
+              size="small"
+              onClick={handleAddNavigate}
+              endIcon={<AddIcon />}
+            >
+              Add
+            </Button>
+          )}
+        </Stack>
+      </Stack>
 
       <Box sx={{ flex: 1, overflow: "auto", px: 2, pt: 2, pb: 2 }}>
         <ProductsTable
@@ -200,18 +262,37 @@ const Products = () => {
         />
       </Box>
 
-      <Dialog open={deleteOpen} onClose={handleDeleteCancel} maxWidth="xs" fullWidth>
+      <Dialog
+        open={deleteOpen}
+        onClose={handleDeleteCancel}
+        maxWidth="xs"
+        fullWidth
+      >
         <DialogTitle>Delete Product?</DialogTitle>
         <DialogContent>This action cannot be undone.</DialogContent>
         <DialogActions>
           <Button onClick={handleDeleteCancel}>Cancel</Button>
-          <Button color="error" variant="contained" onClick={handleDeleteConfirm}>
+          <Button
+            color="error"
+            variant="contained"
+            onClick={handleDeleteConfirm}
+          >
             Delete
           </Button>
         </DialogActions>
       </Dialog>
 
-      <Box sx={{ mt: 1, textAlign: "center", py: 1, fontSize: "0.8rem", color: "text.secondary", borderTop: "1px solid", borderColor: "divider" }}>
+      <Box
+        sx={{
+          mt: 1,
+          textAlign: "center",
+          py: 1,
+          fontSize: "0.8rem",
+          color: "text.secondary",
+          borderTop: "1px solid",
+          borderColor: "divider",
+        }}
+      >
         © {new Date().getFullYear()} ecom
       </Box>
     </Box>
