@@ -152,6 +152,7 @@ const EditUserPage = () => {
         display: "flex",
         flexDirection: "column",
         fontSize: "0.85rem",
+       
       }}
     >
       <Box
@@ -169,7 +170,7 @@ const EditUserPage = () => {
         <PageHeader title="Edit User" crumbs={crumbs} fontSize="1rem" />
       </Box>
 
-      <Box sx={{ flex: 1, overflowY: "auto", px: 3, py: 2 }}>
+      <Box sx={{ flex: 1, overflowY: "auto", px: 3, py: 2 ,mt:9}}>
         <Box sx={{ display: "flex", justifyContent: "center" }}>
           <Card sx={{ width: "60%", p: 2 }}>
             <CardContent sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
@@ -181,7 +182,7 @@ const EditUserPage = () => {
                 sx={{
                   display: "grid",
                   gridTemplateColumns: "1fr 1fr",
-                  gap: 2,
+                  gap: 5,
                   opacity: bootLoading ? 0.6 : 1,
                   pointerEvents: bootLoading ? "none" : "auto",
                 }}
@@ -191,7 +192,7 @@ const EditUserPage = () => {
                   name="username"
                   value={form.username}
                   onChange={handleChange}
-                  size="small"
+                  size="large"
                   fullWidth
                 />
                 <TextField
@@ -199,7 +200,7 @@ const EditUserPage = () => {
                   name="email"
                   value={form.email}
                   onChange={handleChange}
-                  size="small"
+                  size="large"
                   fullWidth
                 />
                 <TextField
@@ -207,10 +208,10 @@ const EditUserPage = () => {
                   name="mobile"
                   value={form.mobile}
                   onChange={handleChange}
-                  size="small"
+                  size="large"
                   fullWidth
                 />
-                <FormControl fullWidth size="small">
+                <FormControl fullWidth size="large">
                   <InputLabel id="role-label">Role</InputLabel>
                   <Select
                     labelId="role-label"
@@ -228,7 +229,7 @@ const EditUserPage = () => {
                 </FormControl>
               </Box>
 
-              <Divider />
+           
             </CardContent>
           </Card>
         </Box>
@@ -240,12 +241,12 @@ const EditUserPage = () => {
             display: "flex",
             justifyContent: "flex-end",
             gap: 1.5,
-            mt: 2,
+            mt: 6,
           }}
         >
           <Button
             variant="outlined"
-            size="small"
+            size="large"
             onClick={() => navigate("/users")}
             disabled={saving}
           >
@@ -253,7 +254,7 @@ const EditUserPage = () => {
           </Button>
           <Button
             variant="contained"
-            size="small"
+            size="large"
             onClick={handleSave}
             disabled={saving || bootLoading || invalid}
           >

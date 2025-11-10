@@ -112,10 +112,10 @@ const EditCategory = () => {
         <PageHeader title="Edit Category" crumbs={crumbs} fontSize="1rem" />
       </Box>
 
-      <Box sx={{ flex: 1, overflowY: "auto", px: 3, py: 2 }}>
+      <Box sx={{ flex: 1, overflowY: "auto", px: 3, py: 2 ,mt:8}}>
         <Box sx={{ display: "flex", justifyContent: "center", width: "100%" }}>
-          <Card sx={{ width: "60%", p: 2 }}>
-            <CardContent sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
+          <Card sx={{ width: "90%", p: 2 }}>
+            <CardContent sx={{ display: "flex", flexDirection: "column", gap: 4 }}>
               <Typography sx={{ fontWeight: 600, fontSize: "0.9rem" }}>
                 Category Details
               </Typography>
@@ -135,7 +135,7 @@ const EditCategory = () => {
                   value={category.name}
                   onChange={handleChange}
                   fullWidth
-                  size="small"
+                  size="large"
                 />
                 <TextField
                   label="Description"
@@ -143,7 +143,7 @@ const EditCategory = () => {
                   value={category.description}
                   onChange={handleChange}
                   fullWidth
-                  size="small"
+                  size="large"
                 />
 
                 <FormControlLabel
@@ -151,7 +151,7 @@ const EditCategory = () => {
                     <Switch
                       checked={!!category.status}
                       onChange={handleToggle}
-                      size="small"
+                      size="large"
                       sx={{
                         "& .MuiSwitch-switchBase.Mui-checked": { color: "grey.800" },
                         "& .MuiSwitch-switchBase.Mui-checked + .MuiSwitch-track": {
@@ -165,19 +165,19 @@ const EditCategory = () => {
                 <Box />
               </Box>
 
-              <Divider />
+              
             </CardContent>
           </Card>
         </Box>
 
         <Box
           sx={{
-            width: "60%",
+            width: "90%",
             mx: "auto",
             display: "flex",
             justifyContent: "flex-end",
             gap: 2,
-            mt: 2,
+            mt: 7,
           }}
         >
           <Button variant="outlined" onClick={() => navigate("/categories")} disabled={loading}>

@@ -166,9 +166,9 @@ export default function RoleFormCard({ mode = "add", id }) {
         <PageHeader title={Title} crumbs={crumbs} fontSize="1rem" />
       </Box>
 
-      <Box sx={{ flex: 1, overflowY: "auto", px: 3, py: 2 }}>
+      <Box sx={{ flex: 1, overflowY: "auto", px: 3, py: 2 ,mt:3}}>
         <Box sx={{ display: "flex", justifyContent: "center" }}>
-          <Card sx={{ width: "60%", p: 2 }}>
+          <Card sx={{ width: "90%", p: 2 }}>
             <CardContent sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
               <Box
                 sx={{
@@ -274,7 +274,7 @@ export default function RoleFormCard({ mode = "add", id }) {
       
         <Box
           sx={{
-            width: "60%",
+            width: "90%",
             mx: "auto",
             display: "flex",
             justifyContent: "flex-end",

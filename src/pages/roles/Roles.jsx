@@ -9,6 +9,9 @@ import {
   Select,
   FormControl,
   InputLabel,
+  Paper,
+  Divider,
+  Stack,
 } from "@mui/material";
 import SearchIcon from "@mui/icons-material/Search";
 import dayjs from "dayjs";
@@ -38,7 +41,6 @@ const Roles = () => {
   const [searchObj, setSearchObj] = useState({
     name: "",
     createdAt: null,
-    module: "",
     operation: "",
     isActive: "",
   });
@@ -55,7 +57,6 @@ const Roles = () => {
     if (so.name?.trim()) p.set("name", so.name.trim());
     if (so.createdAt)
       p.set("createdAt", dayjs(so.createdAt).format("YYYY-MM-DD"));
-    if (so.module) p.set("module", so.module);
     if (so.operation) p.set("operation", so.operation);
     if (so.isActive !== "") p.set("isActive", so.isActive);
 
@@ -95,7 +96,6 @@ const Roles = () => {
       searchObj: {
         name: "",
         createdAt: null,
-        module: "",
         operation: "",
         isActive: "",
       },
@@ -139,182 +139,137 @@ const Roles = () => {
   return (
     <Box sx={{ height: "100%", display: "flex", flexDirection: "column" }}>
       <Box
-        sx={{
-          position: "sticky",
-          top: 0,
-          zIndex: 2,
-          bgcolor: "background.paper",
-          borderBottom: "1px solid",
-          borderColor: "divider",
-          px: 2,
-          pt: 2,
-        
-          overflow: "visible",
-        }}
+        sx={{ px: 2, pt: 1, borderBottom: "1px solid", borderColor: "divider" }}
       >
         <PageHeader title="Roles" crumbs={[{ label: "Categories" }]} />
       </Box>
-      <Box
-        sx={{
-          mt: 1,
-          display: "grid",
-          gridTemplateColumns:
-            "minmax(280px, 1fr) repeat(3, minmax(160px, 1fr)) minmax(140px, 1fr) auto",
-          alignItems: "center",
-          gap: 2,
-          overflow: "visible",
-          "& .MuiInputBase-root": { height: 40, fontSize: "0.92rem" },
-          "& .MuiInputLabel-root": { fontSize: "0.85rem" },
-          mt:2,
-          mr:2,
-          ml:2
-        }}
-      >
-        <TextField
-          name="name"
-          label="Role name"
-          value={searchObj.name}
-          onChange={(e) =>
-            setSearchObj((s) => ({ ...s, name: e.target.value }))
-          }
-          InputLabelProps={{ shrink: true }}
-          size="small"
-        />
 
-        <LocalizationProvider dateAdapter={AdapterDayjs}>
-          <DesktopDatePicker
-            label="Created on"
-            value={searchObj.createdAt || null}
-            onChange={(newVal) =>
-              setSearchObj((s) => ({ ...s, createdAt: newVal }))
-            }
-            slotProps={{
-              textField: {
-                size: "small",
-                InputLabelProps: { shrink: true },
-                sx: { "& .MuiInputBase-root": { height: 40 } },
-              },
-            }}
-          />
-        </LocalizationProvider>
-
-        <FormControl size="small">
-          <InputLabel shrink>Module</InputLabel>
-          <Select
-            label="Module"
-            value={searchObj.module}
-            onChange={(e) =>
-              setSearchObj((s) => ({
-                ...s,
-                module: e.target.value,
-                operation: "",
-              }))
-            }
-          >
-            <MenuItem value="">Any</MenuItem>
-            {MODULES.map((m) => (
-              <MenuItem key={m} value={m}>
-                {m}
-              </MenuItem>
-            ))}
-          </Select>
-        </FormControl>
-
-        <FormControl size="small">
-          <InputLabel shrink>Operation</InputLabel>
-          <Select
-            label="Operation"
-            value={searchObj.operation}
-            onChange={(e) =>
-              setSearchObj((s) => ({ ...s, operation: e.target.value }))
-            }
-          >
-            <MenuItem value="">Any</MenuItem>
-            {allowedOps.map((o) => (
-              <MenuItem key={o} value={o}>
-                {o}
-              </MenuItem>
-            ))}
-          </Select>
-        </FormControl>
-
-        <FormControl size="small">
-          <InputLabel shrink>Status</InputLabel>
-          <Select
-            label="Status"
-            value={searchObj.isActive}
-            onChange={(e) =>
-              setSearchObj((s) => ({ ...s, isActive: e.target.value }))
-            }
-          >
-            <MenuItem value="">Any</MenuItem>
-            <MenuItem value="true">Active</MenuItem>
-            <MenuItem value="false">Inactive</MenuItem>
-          </Select>
-        </FormControl>
-
+      <Box sx={{ px: 2, mt: 2 }}>
         <Box
           sx={{
-            justifySelf: "end",
+            p: 2,
+
             display: "flex",
+            justifyContent: "space-between",
             alignItems: "center",
-            gap: 1.25,
+            gap: 2,
           }}
         >
-          <Button
-            variant="outlined"
-            size="small"
-            onClick={() => {
-              setPage(0);
-              fetchRoles(true, { page: 0, searchObj });
-            }}
-            endIcon={<SearchIcon />}
+          <Stack
+            direction="row"
+            spacing={2}
+            alignItems="center"
+            flexWrap="wrap"
+            useFlexGap
             sx={{
-              px: 2.5,
-              height: 40,
-              borderColor: "grey.800",
-              color: "grey.800",
-              "&:hover": { borderColor: "grey.900", color: "grey.900" },
-            }}
-          >
-            Search
-          </Button>
-
-          <Button
-            variant="outlined"
-            size="small"
-            onClick={handleClearAll}
-            sx={{
-              px: 2,
-              height: 40,
-              borderColor: "#bdbdbd",
-              color: "grey.800",
-              "&:hover": {
-                borderColor: "grey.900",
-                color: "grey.900",
-                bgcolor: "action.hover",
+              rowGap: 1.5,
+              "& .MuiFormControl-root, & .MuiTextField-root": {
+                minWidth: { xs: 200, sm: 220 },
               },
             }}
           >
-            Clear
-          </Button>
+            <TextField
+              name="name"
+              label="Role name"
+              value={searchObj.name}
+              onChange={(e) =>
+                setSearchObj((s) => ({ ...s, name: e.target.value }))
+              }
+              size="small"
+            />
 
-          <Button
-            variant="contained"
-            size="small"
-            onClick={() => navigate("/roles/add")}
-            sx={{
-              px: 2.5,
-              height: 40,
-              bgcolor: "grey.800",
-              "&:hover": { bgcolor: "grey.900" },
-            }}
-          >
-            Add
-          </Button>
+            <LocalizationProvider dateAdapter={AdapterDayjs}>
+              <DesktopDatePicker
+                label="Created on"
+                value={searchObj.createdAt || null}
+                onChange={(newVal) =>
+                  setSearchObj((s) => ({ ...s, createdAt: newVal }))
+                }
+                slotProps={{
+                  textField: {
+                    size: "small",
+                  },
+                }}
+              />
+            </LocalizationProvider>
+
+            <FormControl size="small">
+              <InputLabel>Operation</InputLabel>
+              <Select
+                label="Operation"
+                value={searchObj.operation}
+                onChange={(e) =>
+                  setSearchObj((s) => ({ ...s, operation: e.target.value }))
+                }
+              >
+                <MenuItem value="">Any</MenuItem>
+                {allowedOps.map((o) => (
+                  <MenuItem key={o} value={o}>
+                    {o}
+                  </MenuItem>
+                ))}
+              </Select>
+            </FormControl>
+
+            <FormControl size="small">
+              <InputLabel>Status</InputLabel>
+              <Select
+                label="Status"
+                value={searchObj.isActive}
+                onChange={(e) =>
+                  setSearchObj((s) => ({ ...s, isActive: e.target.value }))
+                }
+              >
+                <MenuItem value="">Any</MenuItem>
+                <MenuItem value="true">Active</MenuItem>
+                <MenuItem value="false">Inactive</MenuItem>
+              </Select>
+            </FormControl>
+          </Stack>
+
+          <Stack direction="row" spacing={1.25} alignItems="center">
+            <Button
+              variant="outlined"
+              size="medium"
+              onClick={() => {
+                setPage(0);
+                fetchRoles(true, { page: 0, searchObj });
+              }}
+              endIcon={<SearchIcon />}
+              sx={{
+                color: "grey.800",
+                px: 2.5,
+              }}
+            >
+              Search
+            </Button>
+
+            <Button
+              variant="outlined"
+              size="medium"
+              onClick={handleClearAll}
+              sx={{ px: 2 }}
+            >
+              Clear
+            </Button>
+
+            <Button
+              variant="contained"
+              size="medium"
+              onClick={() => navigate("/roles/add")}
+              sx={{
+                px: 2.5,
+                bgcolor: "grey.800",
+                "&:hover": { bgcolor: "grey.900" },
+              }}
+            >
+              Add
+            </Button>
+          </Stack>
         </Box>
       </Box>
 
+      {/* Table */}
       <Box
         sx={{
           flex: 1,
@@ -341,6 +296,7 @@ const Roles = () => {
         />
       </Box>
 
+      {/* Footer */}
       <Box
         sx={{
           mt: 1.5,

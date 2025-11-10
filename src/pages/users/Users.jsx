@@ -1,7 +1,6 @@
 import axios from "axios";
 import React, { useEffect, useState, useContext } from "react";
 import { toast } from "react-toastify";
-// import UsersTable from "../../components/Users/UsersTable";
 import { Box, Stack, TextField, Button } from "@mui/material";
 import SearchIcon from "@mui/icons-material/Search";
 import AddIcon from "@mui/icons-material/Add";
@@ -67,6 +66,12 @@ const Users = () => {
     setPage(0);
   };
 
+  const handleSoftDelete = async (id) => {
+    await axios.delete(`http://localhost:3000/users/${id}`, {
+      withCredentials: true,
+    });
+    await fetchUsers(true); 
+  };
   return (
     <Box
       sx={{
@@ -137,7 +142,7 @@ const Users = () => {
         >
           <Button
             variant="outlined"
-            size="small"
+            size="large"
             endIcon={<SearchIcon />}
             onClick={triggerSearch}
             sx={{
@@ -183,9 +188,10 @@ const Users = () => {
           users={users}
           page={page}
           rowsPerPage={rowsPerPage}
-          rowsPerPageSetter={rowsPerPageSetter}
-          pageSetter={pageSetter}
+          rowsPerPageSetter={setRowsPerPage}
+          pageSetter={setPage}
           length={length}
+          onDelete={handleSoftDelete}
         />
       </Box>
 

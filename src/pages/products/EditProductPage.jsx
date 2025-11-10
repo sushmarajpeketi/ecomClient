@@ -163,7 +163,10 @@ const EditProductPage = () => {
   const saveEnabled =
     !loading && !!form.name && !!form.price && !!form.category;
 
-  const crumbs = [{ label: "Products", to: "/products" }, { label: "Edit Product" }];
+  const crumbs = [
+    { label: "Products", to: "/products" },
+    { label: "Edit Product" },
+  ];
 
   return (
     <Box
@@ -189,10 +192,12 @@ const EditProductPage = () => {
         <PageHeader title="Edit Product" crumbs={crumbs} fontSize="1rem" />
       </Box>
 
-      <Box sx={{ flex: 1, overflowY: "auto", px: 3, py: 2 }}>
+      <Box sx={{ flex: 1, overflowY: "auto", px: 3, py: 2,mt:3 }}>
         <Box sx={{ display: "flex", justifyContent: "center", width: "100%" }}>
-          <Card sx={{ width: "60%", p: 2 }}>
-            <CardContent sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
+          <Card sx={{ width: "90%", p: 2 }}>
+            <CardContent
+              sx={{ display: "flex", flexDirection: "column", gap: 5 }}
+            >
               <Typography sx={{ fontWeight: 600, fontSize: "0.9rem" }}>
                 Product Details
               </Typography>
@@ -201,7 +206,7 @@ const EditProductPage = () => {
                 sx={{
                   display: "grid",
                   gridTemplateColumns: "1fr 1fr",
-                  gap: 2,
+                  gap: 3,
                 }}
               >
                 <TextField
@@ -209,8 +214,8 @@ const EditProductPage = () => {
                   name="name"
                   value={form.name}
                   onChange={handleChange}
-                  fullWidth
-                  size="small"
+                  
+                  size="large"
                 />
                 <TextField
                   label="Description"
@@ -218,7 +223,7 @@ const EditProductPage = () => {
                   value={form.description}
                   onChange={handleChange}
                   fullWidth
-                  size="small"
+                  size="large"
                 />
                 <TextField
                   label="Price"
@@ -227,9 +232,9 @@ const EditProductPage = () => {
                   value={form.price}
                   onChange={handleChange}
                   fullWidth
-                  size="small"
+                  size="large"
                 />
-                <FormControl fullWidth size="small">
+                <FormControl fullWidth size="large">
                   <InputLabel>Category</InputLabel>
                   <Select
                     label="Category"
@@ -249,18 +254,33 @@ const EditProductPage = () => {
                   </Select>
                 </FormControl>
 
-                <Button variant="outlined" component="label" fullWidth disabled={loading} size="small">
-                  Upload Image
-                  <input hidden accept="image/*" type="file" onChange={handleImageUpload} />
-                </Button>
-
                 <Box
                   sx={{
                     display: "flex",
-                    justifyContent: "center",
+                    justifyContent: "space-around",
                     alignItems: "center",
+                    border:"1px solid lightgray",
+                    borderRadius:"10px",
+                    p:2
                   }}
                 >
+                  <Button
+                    variant="outlined"
+                    component="label"
+                    fullWidth
+                    disabled={loading}
+                    size="large"
+                    sx={{width:"40%"}}
+                  >
+                    Upload Image
+                    <input
+                      hidden
+                      accept="image/*"
+                      type="file"
+                      onChange={handleImageUpload}
+                      
+                    />
+                  </Button>
                   {preview && (
                     <img
                       src={preview}
@@ -276,20 +296,18 @@ const EditProductPage = () => {
                   )}
                 </Box>
               </Box>
-
-              <Divider />
             </CardContent>
           </Card>
         </Box>
 
         <Box
           sx={{
-            width: "60%",
+            width: "90%",
             mx: "auto",
             display: "flex",
             justifyContent: "flex-end",
             gap: 2,
-            mt: 2,
+            mt: 4,
           }}
         >
           <Button variant="outlined" onClick={() => navigate("/products")}>

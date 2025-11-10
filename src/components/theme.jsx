@@ -1,81 +1,78 @@
-// src/components/theme.js
+
 import { createTheme } from "@mui/material/styles";
 
 const theme = createTheme({
-  typography: {
-    fontFamily: "Inter, sans-serif", // Default for everything
-    h1: { fontFamily: "Poppins, sans-serif", fontWeight: 600 },
-    h2: { fontFamily: "Poppins, sans-serif", fontWeight: 600 },
-    h3: { fontFamily: "Poppins, sans-serif", fontWeight: 600 },
-    h4: { fontFamily: "Poppins, sans-serif", fontWeight: 600 },
-    h5: { fontFamily: "Poppins, sans-serif", fontWeight: 600 },
-    h6: { fontFamily: "Poppins, sans-serif", fontWeight: 600 },
-    button: { fontWeight: 500 },
-  },
-
   palette: {
+    mode: "light",
     primary: {
-      main: "#424242", 
-      dark: "#212121", 
-      contrastText: "#fff",
+      main: "#000000", 
+      contrastText: "#ffffff",
+    },
+    secondary: {
+      main: "#424242",
+      contrastText: "#ffffff",
+    },
+    background: {
+      default: "#ffffff",
+      paper: "#ffffff",
+    },
+    text: {
+      primary: "#000000",
+      secondary: "#616161",
+    },
+    divider: "#e0e0e0",
+  },
+  typography: {
+    fontFamily:
+      "Inter, system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif",
+    h5: { fontWeight: 600, letterSpacing: 0.2 },
+    button: { textTransform: "none", fontWeight: 600 },
+  },
+  shape: {
+    borderRadius: 12,
+  },
+  components: {
+    MuiPaper: {
+      defaultProps: { elevation: 3 },
+      styleOverrides: {
+        root: ({ ownerState }) => ({
+          border: ownerState?.square ? "none" : "1px solid #e6e6e6",
+        }),
+      },
+    },
+    MuiButton: {
+      defaultProps: { variant: "contained", color: "primary" },
+      styleOverrides: {
+        contained: {
+          boxShadow: "none",
+        },
+      },
+    },
+     MuiTableCell: {
+    styleOverrides: {
+      root: {
+        borderBottom: "1px solid #f0f0f0", 
+      },
+      head: {
+        fontWeight: 600,
+        backgroundColor: "#fafafa",
+        borderBottom: "1px solid #e6e6e6 !important",
+      },
+    },
+  },  MuiTableRow: {
+    styleOverrides: {
+      root: {
+        "&:hover": {
+          backgroundColor: "#fafafa", 
+        },
+      },
     },
   },
-
-  components: {
-    MuiButton: {
-      styleOverrides: {
-        root: {
-          textTransform: "none",
-          borderRadius: 6,
-          height: 40,
-        },
-        contained: {
-          backgroundColor: "#424242",
-          color: "#fff",
-          "&:hover": { backgroundColor: "#212121" },
-          "&.Mui-disabled": { backgroundColor: "#bdbdbd", color: "#fff" },
-        },
-        outlined: {
-          borderColor: "#424242",
-          color: "#424242",
-          "&:hover": { borderColor: "#212121", color: "#212121" },
-        },
-      },
-    },
-
     MuiTextField: {
-      defaultProps: { size: "small" },
+      defaultProps: { size: "small", variant: "outlined" },
     },
-    MuiOutlinedInput: {
-      styleOverrides: {
-        inputSizeSmall: {
-          paddingTop: 10,
-          paddingBottom: 10,
-          fontSize: "0.92rem",
-        },
-      },
-    },
-
-    MuiSwitch: {
-      styleOverrides: {
-        switchBase: {
-          "&.Mui-checked": { color: "#424242" },
-          "&.Mui-checked + .MuiSwitch-track": { backgroundColor: "#424242" },
-        },
-      },
-    },
-
-    MuiTableHead: {
-      styleOverrides: {
-        root: {
-          "& .MuiTableCell-root": {
-            fontWeight: 700,
-            color: "#fff",
-            backgroundColor: "#1f2937",
-            fontFamily: "Poppins, sans-serif",
-          },
-        },
-      },
+    MuiInputLabel: {
+      styleOverrides: { root: { fontSize: "0.95rem" } },
     },
   },
 });

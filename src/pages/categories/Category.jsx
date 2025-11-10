@@ -170,7 +170,7 @@ const Category = () => {
         />
       </Box>
 
-      <Box sx={{ flex: 1, overflowY: "auto", px: 3, py: 2 }}>
+      <Box sx={{ flex: 1, overflowY: "auto", px: 3, py: 2 ,}}>
         <Box sx={{ display: "flex", justifyContent: "space-between", mb: 2 }}>
           <Box sx={{ display: "flex", gap: 2 }}>
             <TextField

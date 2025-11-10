@@ -5,133 +5,104 @@ import List from "@mui/material/List";
 import ListItemButton from "@mui/material/ListItemButton";
 import ListItemIcon from "@mui/material/ListItemIcon";
 import ListItemText from "@mui/material/ListItemText";
-import Divider from "@mui/material/Divider";
-import LocalGroceryStoreIcon from "@mui/icons-material/LocalGroceryStore";
 import DraftsIcon from "@mui/icons-material/Drafts";
 import GroupOutlinedIcon from "@mui/icons-material/GroupOutlined";
+import LocalGroceryStoreIcon from "@mui/icons-material/LocalGroceryStore";
 import { userContext } from "../context/userContext";
+
 const Sidebar = () => {
-  const [selectedIndex, setSelectedIndex] = React.useState();
+  const [selectedIndex, setSelectedIndex] = React.useState(0);
   const navigate = useNavigate();
-  const { user, setUser } = useContext(userContext);
-  const handleListItemClick = (event, index) => {
-    setSelectedIndex(index);
-  };
+  const { user } = useContext(userContext);
+
+  const navItems = [
+    { label: "Dashboard", icon: <DraftsIcon />, path: "/dashboard" },
+    ...(user?.role === "admin"
+      ? [{ label: "Users", icon: <GroupOutlinedIcon />, path: "/users" }]
+      : []),
+    { label: "Products", icon: <LocalGroceryStoreIcon />, path: "/products" },
+    { label: "Categories", icon: <LocalGroceryStoreIcon />, path: "/categories" },
+    { label: "Roles", icon: <LocalGroceryStoreIcon />, path: "/roles" },
+  ];
 
   return (
     <Box
       sx={{
         width: "90px",
         minWidth: 60,
-        margin: "0",
-        marginTop: "1000",
+        height: "100vh",
+        bgcolor: "#111",
+        display: "flex",
+        flexDirection: "column",
+        alignItems: "center",
+        py: 2,
+
+        // ✅ REMOVE ALL SIDEBAR BORDERS
+        borderRight: "none !important",
+        boxShadow: "none !important",
       }}
     >
       <List
-        component="nav"
-        aria-label="main mailbox folders"
         sx={{
-          padding: 0,
-          margin: 0,
+          width: "100%",
+          display: "flex",
+          flexDirection: "column",
+          gap: 1.5,
+
           "& .MuiListItemButton-root": {
             display: "flex",
             flexDirection: "column",
+            py: 1.5,
+            borderRadius: 2,
+            position: "relative",
+            color: "#ddd",
           },
+
+          // ✅ Selected item styling (clean + visible)
+          "& .Mui-selected": {
+            bgcolor: "rgba(255,255,255,0.08)",
+            color: "#fff",
+          },
+
+          // left bar indicator on selected
+          "& .Mui-selected::before": {
+            content: '""',
+            position: "absolute",
+            left: 0,
+            height: "60%",
+            width: "4px",
+            borderRadius: "0 4px 4px 0",
+            backgroundColor: "#fff",
+          },
+
           "& .MuiListItemIcon-root": {
             minWidth: "unset",
-            padding: 0,
           },
-          "& .MuiListItemText-root": {
-            textAlign: "center",
-            fontSize: "30px",
-            color: "white",
-            fontWeight: 300,
+
+          "& svg": {
+            fontSize: "22px",
           },
+
           "& .MuiTypography-root": {
-            fontSize: "50%",
-            fontWeight: 100,
-            color: "white",
-            textAlign: "center",
-          },
-          "& .MuiListItemButton-root.Mui-selected": {
-            backgroundColor: "rgba(97, 84, 139, 0.5)",
-            color: "white",
+            fontSize: "11px",
+            marginTop: "4px",
           },
         }}
       >
-        <ListItemButton
-          selected={selectedIndex === 0}
-          onClick={(event) => {
-            handleListItemClick(event, 0);
-            navigate("/dashboard");
-          }}
-        >
-          <ListItemIcon>
-            <DraftsIcon />
-          </ListItemIcon>
-          <ListItemText primary="Dashboard" />
-        </ListItemButton>
-        <Divider />
-        {user?.role === "admin" && (
-          <>
-            <ListItemButton
-              selected={selectedIndex === 1}
-              onClick={(event) => {
-                handleListItemClick(event, 1);
-                navigate("/users");
-              }}
-              sx={{ display: "flex", flexDirection: "column" }}
-            >
-              <ListItemIcon>
-                <GroupOutlinedIcon />
-              </ListItemIcon>
-              <ListItemText primary="Users" />
-            </ListItemButton>
-            <Divider />
-          </>
-        )}
-
-        <ListItemButton
-          selected={selectedIndex === 2}
-          onClick={(event) => {
-            handleListItemClick(event, 2);
-            navigate("/products");
-          }}
-        >
-          <ListItemIcon>
-            <LocalGroceryStoreIcon />
-          </ListItemIcon>
-          <ListItemText primary="Products" />
-        </ListItemButton>
-        <Divider />
-        <ListItemButton
-          selected={selectedIndex === 3}
-          onClick={(event) => {
-            handleListItemClick(event, 3);
-            navigate("/categories");
-          }}
-        >
-          <ListItemIcon>
-            <LocalGroceryStoreIcon />
-          </ListItemIcon>
-          <ListItemText primary="Category" />
-        </ListItemButton>
-        <Divider />
-        <ListItemButton
-          selected={selectedIndex === 4}
-          onClick={(event) => {
-            handleListItemClick(event, 4);
-            navigate("/roles");
-          }}
-        >
-          <ListItemIcon>
-            <LocalGroceryStoreIcon />
-          </ListItemIcon>
-          <ListItemText primary="Roles" />
-        </ListItemButton>
-        <Divider />
+        {navItems.map((item, index) => (
+          <ListItemButton
+            key={item.label}
+            selected={selectedIndex === index}
+            onClick={() => {
+              setSelectedIndex(index);
+              navigate(item.path);
+            }}
+          >
+            <ListItemIcon sx={{ color: "inherit" }}>{item.icon}</ListItemIcon>
+            <ListItemText primary={item.label} />
+          </ListItemButton>
+        ))}
       </List>
-      <Divider />
     </Box>
   );
 };

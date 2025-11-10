@@ -218,7 +218,7 @@ const Products = () => {
         <Stack direction="row" spacing={1.25} alignItems="center">
           <Button
             variant="outlined"
-            size="small"
+            size="medium"
             onClick={handleSearch}
             endIcon={<SearchIcon />}
             sx={{
@@ -229,13 +229,13 @@ const Products = () => {
           >
             Search
           </Button>
-          <Button variant="outlined" size="small" onClick={handleClear}>
+          <Button variant="outlined" size="medium" onClick={handleClear}>
             Clear
           </Button>
           {user?.role === "admin" && (
             <Button
               variant="contained"
-              size="small"
+              size="medium"
               onClick={handleAddNavigate}
               endIcon={<AddIcon />}
             >
