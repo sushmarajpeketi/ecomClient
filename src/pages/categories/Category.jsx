@@ -8,6 +8,7 @@ import { userContext } from "../../context/userContext";
 import { useNavigate } from "react-router-dom";
 import PageHeader from "../../components/PageHeader";
 
+import CategoryTable from './../../components/Categories/CategoryTable';
 const Category = () => {
   const navigate = useNavigate();
   const { user: globalUser } = useContext(userContext);
