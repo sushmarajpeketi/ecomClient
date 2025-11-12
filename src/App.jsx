@@ -83,7 +83,7 @@ function App() {
                 }
               />
 
-              <Route element={<RoleProtectedRoute allowedRoles={["admin"]} />}>
+              <Route element={<RoleProtectedRoute allowedRoles={["admin","superadmin"]} />}>
                 <Route path="/users" element={<Users />} />
                 <Route path="/users/add" element={<AddUserPage />} />
                 <Route path="/users/edit/:id" element={<EditUserPage />} />
@@ -91,7 +91,7 @@ function App() {
 
               <Route
                 element={
-                  <RoleProtectedRoute allowedRoles={["admin", "user"]} />
+                  <RoleProtectedRoute allowedRoles={["admin","superadmin"]} />
                 }
               >
                 <Route path="/dashboard" element={<Dashboard />} />
@@ -99,13 +99,13 @@ function App() {
 
               <Route
                 element={
-                  <RoleProtectedRoute allowedRoles={["admin", "user"]} />
+                  <RoleProtectedRoute allowedRoles={["admin","superadmin"]} />
                 }
               >
                 <Route path="/products" element={<Products />} />
               </Route>
 
-              <Route element={<RoleProtectedRoute allowedRoles={["admin"]} />}>
+              <Route element={<RoleProtectedRoute allowedRoles={["admin","superadmin"]} />}>
                 <Route path="/products/add" element={<AddProductPage />} />
                 <Route
                   path="/products/edit/:id"
@@ -115,7 +115,7 @@ function App() {
 
               <Route
                 element={
-                  <RoleProtectedRoute allowedRoles={["admin", "user"]} />
+                  <RoleProtectedRoute allowedRoles={["admin","superadmin"]} />
                 }
               >
                 <Route path="/categories" element={<Category />} />
@@ -123,7 +123,7 @@ function App() {
                 <Route path="/categories/edit/:id" element={<EditCategory />} />
               </Route>
 
-              <Route element={<RoleProtectedRoute allowedRoles={["admin"]} />}>
+              <Route element={<RoleProtectedRoute allowedRoles={["admin","superadmin"]} />}>
                 <Route path="/roles" element={<Roles />} />
                 <Route path="/roles/add" element={<AddRoles />} />
                 <Route path="/roles/view/:id" element={<ViewRoles />} />
