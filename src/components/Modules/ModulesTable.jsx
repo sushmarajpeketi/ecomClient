@@ -1,4 +1,4 @@
-// src/components/Categories/CategoryTable.jsx
+// src/components/modules/ModulesTable.jsx
 import React, { useContext } from "react";
 import {
   Paper,
@@ -19,8 +19,8 @@ import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
 import { userContext } from "../../context/userContext";
 import { useNavigate } from "react-router-dom";
-const CategoryTable = ({
-  categories = [],
+const ModulesTable = ({
+  modules = [],
   page,
   rowsPerPage,
   pageSetter,
@@ -34,7 +34,7 @@ const CategoryTable = ({
   order,
   onSort,
 }) => {
-  const noData = categories.length === 0 && !loading;
+  const noData = modules.length === 0 && !loading;
   const { user } = useContext(userContext);
 
   const navigate = useNavigate();
@@ -75,11 +75,14 @@ const CategoryTable = ({
               {sortableHeader("name", "Name")}
               {sortableHeader("description", "Description")}
               {sortableHeader("createdAt", "CreatedAt")}
+
               <TableCell align="center" sx={headerCellSx}>
                 Status
               </TableCell>
-              {!(user?.permissions["categories"].includes("read") &&
-              user?.permissions["categories"].length == 1) ? (
+              {!(
+                user?.permissions["modules"].includes("read") &&
+                user?.permissions["modules"].length == 1
+              ) ? (
                 <TableCell align="center" sx={headerCellSx}>
                   Actions
                 </TableCell>
@@ -92,23 +95,23 @@ const CategoryTable = ({
               <TableRow>
                 <TableCell colSpan={4} align="center">
                   <Typography variant="body2" color="text.secondary">
-                    No categories found
+                    No modules found
                   </Typography>
                 </TableCell>
               </TableRow>
             ) : (
-              categories.map((cat) => {
-                const id = cat._id || cat.id;
-                const checked = !!cat.status;
+              modules.map((module) => {
+                const id = module._id || module.id;
+                const checked = !!module.status;
                 return (
                   <TableRow key={id} hover>
-                    <TableCell align="center">{cat.name}</TableCell>
+                    <TableCell align="center">{module.name}</TableCell>
                     <TableCell align="center">
-                      {cat.description || "-"}
+                      {module.description || "-"}
                     </TableCell>
                     <TableCell align="center">
-                      {cat.createdAt
-                        ? new Date(cat.createdAt).toLocaleDateString()
+                      {module.createdAt
+                        ? new Date(module.createdAt).toLocaleDateString()
                         : "-"}
                     </TableCell>
                     <TableCell align="center">
@@ -117,7 +120,11 @@ const CategoryTable = ({
                           size="small"
                           checked={checked}
                           onChange={() => onToggle && onToggle(id, !checked)}
-                          disabled={loading}
+                          disabled={
+                            loading &&
+                            user?.permissions["modules"].includes("read") &&
+                            user?.permissions["modules"].length == 1
+                          }
                           sx={{
                             "& .MuiSwitch-switchBase.Mui-checked": {
                               color: "grey.800",
@@ -126,13 +133,15 @@ const CategoryTable = ({
                               { backgroundColor: "grey.800" },
                           }}
                           inputProps={{
-                            "aria-label": "toggle category status",
+                            "aria-label": "toggle module status",
                           }}
                         />
                       </Box>
                     </TableCell>
-                    {!(user?.permissions["categories"].includes("read") &&
-                    user?.permissions["categories"].length == 1) ? (
+                    {!(
+                      user?.permissions["modules"].includes("read") &&
+                      user?.permissions["modules"].length == 1
+                    ) ? (
                       <TableCell align="center">
                         <Box
                           sx={{
@@ -141,18 +150,16 @@ const CategoryTable = ({
                             gap: 1,
                           }}
                         >
-                          {user?.permissions["categories"].includes("read") ? (
+                          {user?.permissions["modules"].includes("read") ? (
                             <IconButton
                               color="primary"
-                              onClick={() => onEdit && onEdit(id, cat)}
+                              onClick={() => onEdit && onEdit(id, module)}
                             >
                               <EditIcon />
                             </IconButton>
                           ) : null}
 
-                          {user?.permissions["categories"].includes(
-                            "delete"
-                          ) ? (
+                          {user?.permissions["modules"].includes("delete") ? (
                             <IconButton
                               color="error"
                               onClick={() => onDelete && onDelete(id)}
@@ -189,4 +196,4 @@ const CategoryTable = ({
   );
 };
 
-export default CategoryTable;
+export default ModulesTable;

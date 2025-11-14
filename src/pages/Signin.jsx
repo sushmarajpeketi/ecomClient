@@ -86,11 +86,12 @@ const Signin = () => {
         img: userDetails.data.img,
       });
 
-      navigate("/");
+      navigate("/dashboard");
     } catch (e) {
-      const backendMsg = e.response?.data?.error;
+      console.log("..............",e)
+      const backendMsg = e.response?.data?.message;
       if (Array.isArray(backendMsg)) backendMsg.forEach((err) => toast.error(err.message));
-      else toast.error(backendMsg || e.message);
+      else toast.error(backendMsg || e.data?.error || e.error);
     }
   };
 
@@ -136,18 +137,7 @@ const Signin = () => {
 
           <Divider />
 
-          <Box sx={{ display: "flex", justifyContent: "space-between" }}>
-            <Button
-              variant="outlined"
-              color="primary"
-              onClick={() => navigate("/sign-up")}
-            >
-              Create account
-            </Button>
-            <Button variant="text" color="secondary" onClick={() => navigate("/")}>
-              Back to home
-            </Button>
-          </Box>
+          
         </Stack>
       </Paper>
     </Container>

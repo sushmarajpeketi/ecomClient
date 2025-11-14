@@ -14,6 +14,8 @@ import {
   Snackbar,
   Alert,
   Divider,
+  FormControlLabel,
+  Switch,
 } from "@mui/material";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
@@ -47,6 +49,7 @@ const AddUserPage = () => {
     password: "",
     mobile: "",
     role: "",
+    status: true, // ✅ default true
   });
 
   const [roles, setRoles] = useState([]);
@@ -79,6 +82,7 @@ const AddUserPage = () => {
   }, []);
 
   const handleChange = (e) => setForm((s) => ({ ...s, [e.target.name]: e.target.value }));
+  const handleToggle = (e) => setForm((s) => ({ ...s, status: e.target.checked }));
   const markTouched = (name) => setTouched((t) => ({ ...t, [name]: true }));
 
   const fieldError = (name) => {
@@ -99,7 +103,7 @@ const AddUserPage = () => {
 
   const handleSubmit = async () => {
     setTouched(
-      Object.keys(form).reduce((acc, k) => {
+      Object.keys(validators).reduce((acc, k) => {
         acc[k] = true;
         return acc;
       }, {})
@@ -118,6 +122,7 @@ const AddUserPage = () => {
         password: form.password,
         mobile: String(form.mobile).trim(),
         role: form.role,
+        status: !!form.status, // ✅ send status
       };
 
       await axios.post(CREATE_USER_URL, payload, {
@@ -164,7 +169,7 @@ const AddUserPage = () => {
 
       <Box sx={{ flex: 1, overflowY: "auto", px: 3, py: 2 }}>
         <Box sx={{ display: "flex", justifyContent: "center", width: "100%" }}>
-          <Card sx={{ width: "90%", p: 2 ,marginTop:"30px"}}>
+          <Card sx={{ width: "90%", p: 2, marginTop: "30px" }}>
             <CardContent sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
               <Typography sx={{ fontWeight: 600, fontSize: "0.9rem" }}>
                 User Details
@@ -302,10 +307,24 @@ const AddUserPage = () => {
                   </FormControl>
                 </Box>
 
-                <Box />
+                {/* Status toggle */}
+                <FormControlLabel
+                  control={
+                    <Switch
+                      checked={!!form.status}
+                      onChange={handleToggle}
+                      size="large"
+                      sx={{
+                        "& .MuiSwitch-switchBase.Mui-checked": { color: "grey.800" },
+                        "& .MuiSwitch-switchBase.Mui-checked + .MuiSwitch-track": {
+                          backgroundColor: "grey.800",
+                        },
+                      }}
+                    />
+                  }
+                  label={form.status ? "Active" : "Inactive"}
+                />
               </Box>
-
-             
             </CardContent>
           </Card>
         </Box>
@@ -327,7 +346,12 @@ const AddUserPage = () => {
             variant="contained"
             disabled={!isValid || submitting}
             onClick={handleSubmit}
-            sx={{width:"90px"}}
+            sx={{
+              width: "90px",
+              bgcolor: !submitting ? "grey.800" : "grey.400",
+              color: "common.white",
+              "&:hover": { bgcolor: !submitting ? "grey.900" : "grey.400" },
+            }}
           >
             {submitting ? "Adding..." : "Add"}
           </Button>

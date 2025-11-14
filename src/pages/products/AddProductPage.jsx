@@ -13,7 +13,6 @@ import {
   MenuItem,
   Snackbar,
   Alert,
-  Divider,
 } from "@mui/material";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
@@ -28,7 +27,7 @@ const AddProductPage = () => {
     name: "",
     description: "",
     price: "",
-    category: "",
+    category: "",     // will hold the category id (string)
     image: null,
   });
   const [preview, setPreview] = useState(null);
@@ -36,30 +35,28 @@ const AddProductPage = () => {
   const [categories, setCategories] = useState([]);
   const [catsLoading, setCatsLoading] = useState(false);
 
-  const [toast, setToast] = useState({
-    open: false,
-    message: "",
-    severity: "success",
-  });
-
-  const openToast = (message, severity = "success") =>
-    setToast({ open: true, message, severity });
+  const [toast, setToast] = useState({ open: false, message: "", severity: "success" });
+  const openToast = (message, severity = "success") => setToast({ open: true, message, severity });
   const closeToast = () => setToast((t) => ({ ...t, open: false }));
 
   useEffect(() => {
     (async () => {
       setCatsLoading(true);
       try {
-        const res = await axios.get(`${BASE_URL}/category?rows=100`, {
-          withCredentials: true,
-        });
-        const list = res?.data?.data ?? [];
-        setCategories(Array.isArray(list) ? list : []);
+        // pull only active, not-deleted categories (optional but sensible)
+        const res = await axios.get(`${BASE_URL}/category?rows=100&status=true`, { withCredentials: true });
+        const raw = Array.isArray(res?.data?.data) ? res.data.data : [];
+
+        // Normalize ids so UI uses a consistent key/value
+        // backend returns { id, ... } (not _id)
+        const list = raw.map((c) => ({
+          id: c.id || c._id,        // support either shape just in case
+          name: c.name,
+        }));
+        setCategories(list);
       } catch (e) {
         openToast(
-          e?.response?.data?.message ||
-            e?.response?.data?.error ||
-            "Failed to load categories",
+          e?.response?.data?.message || e?.response?.data?.error || "Failed to load categories",
           "error"
         );
       } finally {
@@ -68,8 +65,7 @@ const AddProductPage = () => {
     })();
   }, []);
 
-  const handleChange = (e) =>
-    setForm((s) => ({ ...s, [e.target.name]: e.target.value }));
+  const handleChange = (e) => setForm((s) => ({ ...s, [e.target.name]: e.target.value }));
 
   const handleImageUpload = async (e) => {
     const file = e.target.files?.[0];
@@ -78,18 +74,14 @@ const AddProductPage = () => {
     const fd = new FormData();
     fd.append("image", file);
     try {
-      const res = await axios.post(`${BASE_URL}/products/upload-image`, fd, {
-        withCredentials: true,
-      });
+      const res = await axios.post(`${BASE_URL}/products/upload-image`, fd, { withCredentials: true });
       const imageUrl = res.data?.url;
       setForm((s) => ({ ...s, image: imageUrl }));
       setPreview(URL.createObjectURL(file));
       openToast("Image uploaded", "success");
     } catch (err) {
       openToast(
-        err?.response?.data?.message ||
-          err?.response?.data?.error ||
-          "Image upload failed",
+        err?.response?.data?.message || err?.response?.data?.error || "Image upload failed",
         "error"
       );
     } finally {
@@ -103,21 +95,13 @@ const AddProductPage = () => {
       return;
     }
     setLoading(true);
-    const payload = {
-      ...form,
-      price: Number(form.price),
-    };
+    const payload = { ...form, price: Number(form.price) };
     try {
-      await axios.post(`${BASE_URL}/products/create-product`, payload, {
-        withCredentials: true,
-      });
+      await axios.post(`${BASE_URL}/products/create-product`, payload, { withCredentials: true });
       openToast("Product added successfully!", "success");
       setTimeout(() => navigate("/products"), 600);
     } catch (e) {
-      const msg =
-        e?.response?.data?.message ||
-        e?.response?.data?.error ||
-        "Failed to add product";
+      const msg = e?.response?.data?.message || e?.response?.data?.error || "Failed to add product";
       openToast(msg, "error");
     } finally {
       setLoading(false);
@@ -132,14 +116,7 @@ const AddProductPage = () => {
   ];
 
   return (
-    <Box
-      sx={{
-        height: "100%",
-        display: "flex",
-        flexDirection: "column",
-        fontSize: "0.85rem",
-      }}
-    >
+    <Box sx={{ height: "100%", display: "flex", flexDirection: "column", fontSize: "0.85rem" }}>
       <Box
         sx={{
           position: "sticky",
@@ -155,30 +132,22 @@ const AddProductPage = () => {
         <PageHeader title="Add Product" crumbs={crumbs} fontSize="1rem" />
       </Box>
 
-      <Box sx={{ flex: 1, overflowY: "auto", px: 3, py: 2,mt:7 }}>
+      <Box sx={{ flex: 1, overflowY: "auto", px: 3, py: 2, mt: 7 }}>
         <Box sx={{ display: "flex", justifyContent: "center", width: "100%" }}>
           <Card sx={{ width: "90%", p: 2 }}>
-            <CardContent
-              sx={{ display: "flex", flexDirection: "column", gap: 2 }}
-            >
+            <CardContent sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
               <Typography sx={{ fontWeight: 600, fontSize: "0.9rem" }}>
                 Product Details
               </Typography>
 
-              <Box
-                sx={{
-                  display: "grid",
-                  gridTemplateColumns: "1fr 1fr",
-                  gap: 4,
-                }}
-              >
+              <Box sx={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 4 }}>
                 <TextField
                   label="Name"
                   name="name"
                   value={form.name}
                   onChange={handleChange}
                   fullWidth
-                  size="large"
+                  size="small"
                 />
                 <TextField
                   label="Description"
@@ -186,7 +155,7 @@ const AddProductPage = () => {
                   value={form.description}
                   onChange={handleChange}
                   fullWidth
-                  size="large"
+                  size="small"
                 />
                 <TextField
                   label="Price"
@@ -195,54 +164,54 @@ const AddProductPage = () => {
                   value={form.price}
                   onChange={handleChange}
                   fullWidth
-                  size="large"
+                  size="small"
                 />
-                <FormControl fullWidth size="large">
+
+                <FormControl fullWidth size="small">
                   <InputLabel>Category</InputLabel>
                   <Select
                     label="Category"
                     name="category"
-                    value={form.category}
+                    value={form.category}                 // should be the id string
                     onChange={handleChange}
                     disabled={catsLoading}
-                    MenuProps={{
-                      PaperProps: { style: { maxHeight: 240 } },
-                    }}
+                    MenuProps={{ PaperProps: { style: { maxHeight: 240 } } }}
                   >
-                    {categories.map((c) => (
-                      <MenuItem key={c._id} value={c._id}>
-                        {c.name}
+                    {categories.length === 0 ? (
+                      <MenuItem disabled value="">
+                        {catsLoading ? "Loading..." : "No categories"}
                       </MenuItem>
-                    ))}
+                    ) : (
+                      categories.map((c) => (
+                        <MenuItem key={c.id} value={c.id}>
+                          {c.name}
+                        </MenuItem>
+                      ))
+                    )}
                   </Select>
                 </FormControl>
 
-                <Box sx={{display:"flex",justifyContent:"space-around",alignItems:"center",border:"1px solid lightgray",borderRadius:"9px",padding:"10px"}}>
+                <Box
+                  sx={{
+                    display: "flex",
+                    justifyContent: "space-around",
+                    alignItems: "center",
+                    border: "1px solid lightgray",
+                    borderRadius: "9px",
+                    p: 1.25,
+                  }}
+                >
                   <Button
                     variant="outlined"
                     component="label"
-                    sx={{width:"30%"}}
+                    sx={{ width: "30%" }}
                     disabled={loading}
-                    size="large"
                   >
                     Upload Image
-                    <input
-                      hidden
-                      accept="image/*"
-                      type="file"
-                      onChange={handleImageUpload}
-                    />
+                    <input hidden accept="image/*" type="file" onChange={handleImageUpload} />
                   </Button>
 
-                  <Box
-                    sx={{
-                      display: "flex",
-                      justifyContent: "center",
-                      alignItems: "center",
-                      width:"40px",
-                      height:"auto"
-                    }}
-                  >
+                  <Box sx={{ display: "flex", justifyContent: "center", alignItems: "center" }}>
                     {preview && (
                       <img
                         src={preview}
@@ -259,7 +228,6 @@ const AddProductPage = () => {
                   </Box>
                 </Box>
               </Box>
-
             </CardContent>
           </Card>
         </Box>
@@ -274,15 +242,10 @@ const AddProductPage = () => {
             mt: 5,
           }}
         >
-          <Button variant="outlined" sx={{width:"90px"}} onClick={() => navigate("/products")}>
+          <Button variant="outlined" sx={{ width: 90 }} onClick={() => navigate("/products")}>
             Cancel
           </Button>
-          <Button
-            variant="contained"
-            disabled={!addEnabled}
-            onClick={handleAdd}
-            sx={{width:"90px"}}
-          >
+          <Button variant="contained" disabled={!addEnabled} onClick={handleAdd} sx={{ width: 90 }}>
             {loading ? "Adding..." : "Add"}
           </Button>
         </Box>
@@ -307,12 +270,7 @@ const AddProductPage = () => {
         onClose={closeToast}
         anchorOrigin={{ vertical: "top", horizontal: "center" }}
       >
-        <Alert
-          onClose={closeToast}
-          severity={toast.severity}
-          variant="filled"
-          sx={{ width: "100%" }}
-        >
+        <Alert onClose={closeToast} severity={toast.severity} variant="filled" sx={{ width: "100%" }}>
           {toast.message}
         </Alert>
       </Snackbar>

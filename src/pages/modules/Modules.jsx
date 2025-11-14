@@ -1,4 +1,3 @@
-// src/pages/categories/Category.jsx
 import React, { useEffect, useState,useContext } from "react";
 import axios from "axios";
 import {
@@ -27,15 +26,15 @@ import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import { DatePicker } from "@mui/x-date-pickers/DatePicker";
 import dayjs from "dayjs";
 import PageHeader from "../../components/PageHeader";
-import CategoryTable from "../../components/Categories/CategoryTable";
+import ModulesTable from "../../components/Modules/ModulesTable";
 
 const BASE_URL = "http://localhost:3000";
 import { userContext } from "../../context/userContext"
 
-const Category = () => {
+const Modules = () => {
   const navigate = useNavigate();
 const { user } = useContext(userContext);
-  const [categories, setCategories] = useState([]);
+  const [modules, setmodules] = useState([]);
   const [total, setTotal] = useState(0);
 
   const [page, setPage] = useState(0);
@@ -45,8 +44,8 @@ const { user } = useContext(userContext);
   const [filters, setFilters] = useState({
     searchWord: "",
     status: "all", // "all" | "true" | "false"
-    from: null, // dayjs | null
-    to: null, // dayjs | null
+    from: null, 
+    to: null, 
   });
 
   const [fetchTotal, setFetchTotal] = useState(true);
@@ -54,7 +53,7 @@ const { user } = useContext(userContext);
   const [order, setOrder] = useState("desc");
   const [loading, setLoading] = useState(false);
 
-  // Toast
+
   const [toast, setToast] = useState({
     open: false,
     message: "",
@@ -64,18 +63,17 @@ const { user } = useContext(userContext);
     setToast({ open: true, message, severity });
   const closeToast = () => setToast((t) => ({ ...t, open: false }));
 
-  // Delete confirm
+
   const [deleteOpen, setDeleteOpen] = useState(false);
   const [deleteId, setDeleteId] = useState(null);
 
-  // Toggle confirm
+
   const [toggleOpen, setToggleOpen] = useState(false);
   const [toggleId, setToggleId] = useState(null);
   const [toggleNextVal, setToggleNextVal] = useState(null);
 
   useEffect(() => {
-    fetchCategories(fetchTotal);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+    fetchmodules(fetchTotal);
   }, [page, rowsPerPage, sort, order]);
 
   const buildQuery = (overrides = {}) => {
@@ -111,7 +109,7 @@ const { user } = useContext(userContext);
     return `?${params.toString()}`;
   };
 
-  const fetchCategories = async (forceTotal = false, overrides = {}) => {
+  const fetchmodules = async (forceTotal = false, overrides = {}) => {
     try {
       setLoading(true);
       const qs = buildQuery({ ...overrides, fetchTotal: forceTotal });
@@ -120,7 +118,7 @@ const { user } = useContext(userContext);
       });
 
       const list = res?.data?.data || [];
-      setCategories(list);
+      setmodules(list);
 
       if (forceTotal && typeof res.data.total === "number") {
         setTotal(res.data.total);
@@ -144,7 +142,7 @@ const { user } = useContext(userContext);
         err?.response?.data?.message ||
           err?.response?.data?.error ||
           err.message ||
-          "Failed to load categories",
+          "Failed to load modules",
         "error"
       );
     } finally {
@@ -157,14 +155,14 @@ const { user } = useContext(userContext);
     if (e) e.preventDefault();
     setPage(0);
     setFetchTotal(true);
-    fetchCategories(true, { page: 0 });
+    fetchmodules(true, { page: 0 });
   };
 
   const clearFilters = () => {
     setFilters({ searchWord: "", status: "all", from: null, to: null });
     setPage(0);
     setFetchTotal(true);
-    fetchCategories(true, {
+    fetchmodules(true, {
       page: 0,
       searchWord: "",
       status: "all",
@@ -183,11 +181,11 @@ const { user } = useContext(userContext);
       await axios.delete(`${BASE_URL}/category/${deleteId}`, {
         withCredentials: true,
       });
-      openToast("Category deleted!", "success");
-      const nextPage = categories.length === 1 && page > 0 ? page - 1 : page;
+      openToast("Modules deleted!", "success");
+      const nextPage = modules.length === 1 && page > 0 ? page - 1 : page;
       setPage(nextPage);
       setFetchTotal(true);
-      await fetchCategories(true, { page: nextPage });
+      await fetchmodules(true, { page: nextPage });
     } catch (err) {
       openToast(
         err?.response?.data?.message ||
@@ -220,10 +218,10 @@ const { user } = useContext(userContext);
         { withCredentials: true }
       );
       openToast(
-        `Category ${toggleNextVal ? "activated" : "deactivated"}`,
+        `Modules ${toggleNextVal ? "activated" : "deactivated"}`,
         "success"
       );
-      await fetchCategories(false);
+      await fetchmodules(false);
     } catch (err) {
       openToast(
         err?.response?.data?.message ||
@@ -251,7 +249,7 @@ const { user } = useContext(userContext);
     setRowsPerPage(r);
     setPage(0);
     setFetchTotal(true);
-    fetchCategories(true, { rows: r, page: 0 });
+    fetchmodules(true, { rows: r, page: 0 });
   };
   const handleSort = (field) => {
     const nextOrder =
@@ -260,10 +258,10 @@ const { user } = useContext(userContext);
     setOrder(nextOrder);
     setPage(0);
     setFetchTotal(true);
-    fetchCategories(true, { sort: field, order: nextOrder, page: 0 });
+    fetchmodules(true, { sort: field, order: nextOrder, page: 0 });
   };
 
-  const handleEdit = (id) => navigate(`/categories/edit/${id}`);
+  const handleEdit = (id) => navigate(`/modules/edit/${id}`);
 
   return (
     // Full-height column; footer appears after content, sticks to bottom if short
@@ -294,8 +292,8 @@ const { user } = useContext(userContext);
         }}
       >
         <PageHeader
-          title="Categories"
-          crumbs={[{ label: "Categories" }]}
+          title="modules"
+          crumbs={[{ label: "modules" }]}
           fontSize="1rem"
         />
         <Divider sx={{ my: 1 }} />
@@ -388,11 +386,11 @@ const { user } = useContext(userContext);
                 Clear
               </Button>
 
-              {user?.permissions["categories"].includes("write") ? (
+              {user?.permissions["modules"].includes("write") ? (
                 <Button
                   variant="contained"
                   endIcon={<AddIcon />}
-                  onClick={() => navigate("/categories/add")}
+                  onClick={() => navigate("/modules/add")}
                   sx={{
                     bgcolor: "grey.800",
                     color: "secondary",
@@ -409,8 +407,8 @@ const { user } = useContext(userContext);
       </Box>
 
       <Box sx={{ flex: 1, px: 2, pb: 2 }}>
-        <CategoryTable
-          categories={categories}
+        <ModulesTable
+          modules={modules}
           page={page}
           rowsPerPage={rowsPerPage}
           pageSetter={setPage}
@@ -449,7 +447,7 @@ const { user } = useContext(userContext);
         maxWidth="xs"
         fullWidth
       >
-        <DialogTitle>Delete Category?</DialogTitle>
+        <DialogTitle>Delete Modules?</DialogTitle>
         <DialogContent>This will mark the category as deleted.</DialogContent>
         <DialogActions>
           <Button onClick={handleDeleteCancel}>Cancel</Button>
@@ -470,7 +468,7 @@ const { user } = useContext(userContext);
         fullWidth
       >
         <DialogTitle>
-          {toggleNextVal ? "Activate Category?" : "Deactivate Category?"}
+          {toggleNextVal ? "Activate Modules?" : "Deactivate Modules?"}
         </DialogTitle>
         <DialogContent>
           {toggleNextVal
@@ -508,4 +506,4 @@ const { user } = useContext(userContext);
   );
 };
 
-export default Category;
+export default Modules;

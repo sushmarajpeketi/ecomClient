@@ -9,21 +9,42 @@ import DraftsIcon from "@mui/icons-material/Drafts";
 import GroupOutlinedIcon from "@mui/icons-material/GroupOutlined";
 import LocalGroceryStoreIcon from "@mui/icons-material/LocalGroceryStore";
 import { userContext } from "../context/userContext";
+import icons from "./icons";
+
 
 const Sidebar = () => {
+
+
   const [selectedIndex, setSelectedIndex] = React.useState(0);
   const navigate = useNavigate();
   const { user } = useContext(userContext);
+ 
+  let navItems = []
+  if(user?.hasOwnProperty("permissions")){
+    for(let [key,value] of Object.entries(user['permissions'])){
+ 
+  
+     if(value?.includes("read")) {
+        navItems.push({label:`${key[0].toUpperCase()}${key.slice(1,key.length)}`,icon:[icons[key] || [icons["fallBackIcon"]]],path:`/${key}`})
+     }
+  }
+  }
+    
+ 
+  // const navItems = [
+  //   { label: "Dashboard", icon: <DraftsIcon />, path: "/dashboard" },
 
-  const navItems = [
-    { label: "Dashboard", icon: <DraftsIcon />, path: "/dashboard" },
-    ...(user?.role === "admin"
-      ? [{ label: "Users", icon: <GroupOutlinedIcon />, path: "/users" }]
-      : []),
-    { label: "Products", icon: <LocalGroceryStoreIcon />, path: "/products" },
-    { label: "Categories", icon: <LocalGroceryStoreIcon />, path: "/categories" },
-    { label: "Roles", icon: <LocalGroceryStoreIcon />, path: "/roles" },
-  ];
+  //   { label: "Users", icon: <GroupOutlinedIcon />, path: "/users" },
+  //   { label: "Products", icon: <LocalGroceryStoreIcon />, path: "/products" },
+  //   {
+  //     label: "Categories",
+  //     icon: <LocalGroceryStoreIcon />,
+  //     path: "/categories",
+  //   },
+  //   { label: "Roles", icon: <LocalGroceryStoreIcon />, path: "/roles" },
+  // ];
+
+
 
   return (
     <Box
@@ -36,8 +57,6 @@ const Sidebar = () => {
         flexDirection: "column",
         alignItems: "center",
         py: 2,
-
-        // ✅ REMOVE ALL SIDEBAR BORDERS
         borderRight: "none !important",
         boxShadow: "none !important",
       }}
@@ -58,13 +77,11 @@ const Sidebar = () => {
             color: "#ddd",
           },
 
-          // ✅ Selected item styling (clean + visible)
           "& .Mui-selected": {
             bgcolor: "rgba(255,255,255,0.08)",
             color: "#fff",
           },
 
-          // left bar indicator on selected
           "& .Mui-selected::before": {
             content: '""',
             position: "absolute",

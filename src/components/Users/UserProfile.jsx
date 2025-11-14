@@ -44,19 +44,13 @@ const UserProfile = ({ open, toggleDrawer }) => {
       return;
     }
   };
+
   const logoutButtonHandler = async () => {
     try {
       let res = await axios("http://localhost:3000/users/logout", {
         withCredentials: true,
       });
-      setUser({
-        username: "",
-        email: "",
-        role: "",
-        id: "",
-        mobile: "",
-        image: "",
-      });
+      setUser(null);
       toggleDrawer(open);
       navigate("/sign-in");
       toast.success(res?.data?.message);
@@ -66,97 +60,119 @@ const UserProfile = ({ open, toggleDrawer }) => {
     }
   };
   return (
-    <Box sx={{ width: 250 }} role="presentation">
+    <Box sx={{ width: 350 }} role="presentation">
       <Box
         component="div"
         sx={{
           height: "70px",
-          bgcolor: "lightgray",
+          bgcolor: "black",
           display: "flex",
           justifyContent: "space-between",
           alignItems: "center",
         }}
       >
-        <span style={{ marginLeft: "20px",fontWeight:800,fontSize:20,fontFamily: "Poppins, sans-serif", fontWeight: 600 }}>User Profile</span>
+        <span
+          style={{
+            marginLeft: "20px",
+            fontWeight: 800,
+            fontSize: 20,
+            fontWeight: 600,
+            color: "white",
+          }}
+        >
+          User Profile
+        </span>
         <IconButton
           onClick={() => {
             toggleDrawer(open);
             fetchUser();
           }}
         >
-          <CloseIcon />
+          <CloseIcon sx={{ color: "white" }} />
         </IconButton>
       </Box>
       <Divider />
-      <ButtonBase
-        component="label"
-        role={undefined}
-        tabIndex={-1}
-        aria-label="Avatar image"
-        sx={{
-          width: 100,
-          height: 100,
-          borderRadius: "40px",
-          "&:has(:focus-visible)": {
-            outline: "2px solid",
-            outlineOffset: "2px",
-          },
-          marginTop: "40px",
-          marginLeft: "80px",
-        }}
+      <Box
+        alignContent="center"
+        textAlign="center"
+        margin="auto"
+        width="50%"
+        marginTop="50px"
       >
-        <Avatar
+        <ButtonBase
+          component="label"
+          role={undefined}
+          tabIndex={-1}
+          aria-label="Avatar image"
           sx={{
-            width: 100,
-            height: 100,
-            position: "relative",
-            cursor: "pointer",
+            width: 120,
+            height: 120,
+            borderRadius: "40px",
+            "&:has(:focus-visible)": {
+              outline: "2px solid",
+              outlineOffset: "2px",
+            },
+            // marginTop: "40px",
+            // marginLeft: "80px",
           }}
-          alt="Upload new avatar"
-          src={typeof avatarSrc === "string" ? avatarSrc : undefined}
         >
-          {!avatarSrc && user?.username[0]?.toUpperCase()}
-        </Avatar>
-        <EditIcon
-          style={{
-            position: "absolute",
-            zIndex: 1,
-            bottom: 0,
-            right: 7,
-            backgroundColor: "gray",
-            color: "white",
-            borderRadius: "50%",
-          }}
-        />
+          <Avatar
+            sx={{
+              width: 120,
+              height: 120,
+              position: "relative",
+              cursor: "pointer",
+            }}
+            alt="Upload new avatar"
+            src={typeof avatarSrc === "string" ? avatarSrc : undefined}
+          >
+            {!avatarSrc && user?.username[0]?.toUpperCase()}
+          </Avatar>
+          <EditIcon
+            style={{
+              position: "absolute",
+              zIndex: 1,
+              bottom: 0,
+              right: 7,
+              backgroundColor: "gray",
+              color: "white",
+              borderRadius: "50%",
+            }}
+          />
 
-        <input
-          type="file"
-          accept="image/*"
-          style={{
-            border: 0,
-            clip: "rect(0 0 0 0)",
-            height: "1px",
-            margin: "-1px",
-            overflow: "hidden",
-            padding: 0,
-            position: "absolute",
-            whiteSpace: "nowrap",
-            width: "1px",
-          }}
-          onChange={handleAvatarChange}
-        />
-      </ButtonBase>
+          <input
+            type="file"
+            accept="image/*"
+            style={{
+              border: 0,
+              clip: "rect(0 0 0 0)",
+              height: "1px",
+              margin: "-1px",
+              overflow: "hidden",
+              padding: 0,
+              position: "absolute",
+              whiteSpace: "nowrap",
+              width: "1px",
+            }}
+            onChange={handleAvatarChange}
+          />
+        </ButtonBase>
+      </Box>
 
       <Box
         sx={{
           textAlign: "center",
+          margin: "auto",
+          textAlign: "center",
           mb: 2,
           display: "grid",
           gridTemplateAreas:
-            "'myArea1 myArea2 ' 'myArea3 myArea4' 'myArea5 myArea6'",
+            "'myArea1 myArea2 ' 'myArea3 myArea4' 'myArea5 myArea6' 'myArea7 myArea8'",
           columnGap: 1,
           alignItems: "center",
           marginTop: "30px",
+          width: "80%",
+          alignContent: "cnter",
         }}
       >
         <Typography
@@ -164,9 +180,10 @@ const UserProfile = ({ open, toggleDrawer }) => {
             display: "inline",
             gridArea: "myArea1",
             color: "black",
+            textAlign: "center",
           }}
           variant="body1"
-          fontWeight="light"
+          fontWeight="bold"
         >
           Name:
         </Typography>
@@ -177,6 +194,7 @@ const UserProfile = ({ open, toggleDrawer }) => {
             gridArea: "myArea2",
             justifySelf: "start",
             color: "gray",
+            textAlign: "center",
           }}
           variant="body2"
           color="text.secondary"
@@ -190,7 +208,7 @@ const UserProfile = ({ open, toggleDrawer }) => {
             color: "black",
           }}
           variant="body"
-          fontWeight="light"
+          fontWeight="bold"
         >
           Email:
         </Typography>
@@ -213,7 +231,7 @@ const UserProfile = ({ open, toggleDrawer }) => {
             color: "black",
           }}
           variant="body"
-          fontWeight="light"
+          fontWeight="bold"
         >
           Mobile:
         </Typography>
@@ -228,6 +246,29 @@ const UserProfile = ({ open, toggleDrawer }) => {
           color="text.secondary"
         >
           {user?.mobile}
+        </Typography>
+        <Typography
+          sx={{
+            display: "inline",
+            gridArea: "myArea7",
+            color: "black",
+          }}
+          variant="body"
+          fontWeight="bold"
+        >
+          Role:
+        </Typography>
+        <Typography
+          sx={{
+            display: "inline",
+            gridArea: "myArea8",
+            justifySelf: "start",
+            color: "gray",
+          }}
+          variant="body2"
+          color="text.secondary"
+        >
+          {user?.role}
         </Typography>
       </Box>
 

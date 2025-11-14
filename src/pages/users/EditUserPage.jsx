@@ -14,6 +14,8 @@ import {
   Snackbar,
   Alert,
   Divider,
+  FormControlLabel,
+  Switch,
 } from "@mui/material";
 import { useParams, useNavigate } from "react-router-dom";
 import axios from "axios";
@@ -29,6 +31,7 @@ const EditUserPage = () => {
     username: "",
     email: "",
     mobile: "",
+    status: true, // ✅ managed here too
   });
 
   const [roles, setRoles] = useState([]);
@@ -68,6 +71,7 @@ const EditUserPage = () => {
           username: user?.username || "",
           email: user?.email || "",
           mobile: user?.mobile || "",
+          status: typeof user?.status === "boolean" ? user.status : true,
         });
 
         const rolesRes = await axios.get(`${API_BASE}/roles`, {
@@ -113,6 +117,7 @@ const EditUserPage = () => {
     setForm((s) => ({ ...s, [e.target.name]: e.target.value }));
 
   const handleRoleChange = (e) => setSelectedRoleId(e.target.value);
+  const handleToggle = (e) => setForm((s) => ({ ...s, status: e.target.checked }));
 
   const invalid = useMemo(() => {
     const uOK = form.username.trim().length >= 3;
@@ -125,7 +130,7 @@ const EditUserPage = () => {
   const handleSave = async () => {
     setSaving(true);
     try {
-      const payload = { ...form, role: selectedRoleId };
+      const payload = { ...form, role: selectedRoleId, status: !!form.status };
       await axios.put(`${API_BASE}/users/${id}`, payload, {
         withCredentials: true,
       });
@@ -152,7 +157,6 @@ const EditUserPage = () => {
         display: "flex",
         flexDirection: "column",
         fontSize: "0.85rem",
-       
       }}
     >
       <Box
@@ -170,7 +174,7 @@ const EditUserPage = () => {
         <PageHeader title="Edit User" crumbs={crumbs} fontSize="1rem" />
       </Box>
 
-      <Box sx={{ flex: 1, overflowY: "auto", px: 3, py: 2 ,mt:9}}>
+      <Box sx={{ flex: 1, overflowY: "auto", px: 3, py: 2, mt: 9 }}>
         <Box sx={{ display: "flex", justifyContent: "center" }}>
           <Card sx={{ width: "60%", p: 2 }}>
             <CardContent sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
@@ -227,9 +231,25 @@ const EditUserPage = () => {
                     ))}
                   </Select>
                 </FormControl>
-              </Box>
 
-           
+                {/* Status toggle (matches grey styling like Category) */}
+                <FormControlLabel
+                  control={
+                    <Switch
+                      checked={!!form.status}
+                      onChange={handleToggle}
+                      size="large"
+                      sx={{
+                        "& .MuiSwitch-switchBase.Mui-checked": { color: "grey.800" },
+                        "& .MuiSwitch-switchBase.Mui-checked + .MuiSwitch-track": {
+                          backgroundColor: "grey.800",
+                        },
+                      }}
+                    />
+                  }
+                  label={form.status ? "Active" : "Inactive"}
+                />
+              </Box>
             </CardContent>
           </Card>
         </Box>
@@ -257,6 +277,11 @@ const EditUserPage = () => {
             size="large"
             onClick={handleSave}
             disabled={saving || bootLoading || invalid}
+            sx={{
+              bgcolor: !saving ? "grey.800" : "grey.400",
+              color: "common.white",
+              "&:hover": { bgcolor: !saving ? "grey.900" : "grey.400" },
+            }}
           >
             {saving ? "Saving..." : "Save User"}
           </Button>

@@ -17,7 +17,7 @@ import axios from "axios";
 import { toast } from "react-toastify";
 import PageHeader from "../../components/PageHeader";
 
-const FALLBACK_MODULES = ["users", "products", "dashboard", "categories"];
+// const FALLBACK_MODULES = ["users", "products", "dashboard", "categories"];
 const FALLBACK_OPERATIONS = ["read", "write", "delete"];
 
 export default function RoleFormCard({ mode = "add", id }) {
@@ -29,32 +29,39 @@ export default function RoleFormCard({ mode = "add", id }) {
 
   const [loading, setLoading] = useState(false);
   const [metaLoading, setMetaLoading] = useState(true);
-  const [MODULES, setMODULES] = useState(FALLBACK_MODULES);
-  const [OPERATIONS, setOPERATIONS] = useState(FALLBACK_OPERATIONS);
+  const [MODULES, setMODULES] = useState();
+  const [OPERATIONS, setOPERATIONS] = useState();
 
+  const [selectedModules,setSelectedModules] = useState()
   const [form, setForm] = useState({
     name: "",
     description: "",
     isActive: true,
+    
     permissions: {},
   });
 
   useEffect(() => {
+
     (async () => {
-      try {
-        const res = await axios.get("http://localhost:3000/roles/modules-permissions", { withCredentials: true });
+        try {
+        const res = await axios.get("http://localhost:3000/modules/names", { withCredentials: true });
         const data = res?.data?.data;
-        if (data?.modules?.length) setMODULES(data.modules);
-        if (data?.permissions?.length) setOPERATIONS(data.permissions);
-      } catch {
-        
+       
+        if (data?.length) setMODULES(data);
+        setOPERATIONS(FALLBACK_OPERATIONS);
+
+       
+      } catch(e) {
+        toast.error(e?.response?.data?.error||e?.response?.error||e?.response?.message)
       } finally {
         setMetaLoading(false);
       }
-    })();
+    }
+
+  )();
   }, []);
 
- 
   useEffect(() => {
     if (isAdd || !id) return;
     (async () => {
@@ -85,15 +92,31 @@ export default function RoleFormCard({ mode = "add", id }) {
     setForm((s) => ({ ...s, [name]: value }));
   };
 
+  const toggleModule = (module) =>{
+    if (disableAll) return;
+    setForm((s)=>{
+        const currentModuleExist = s.permissions.hasOwnProperty(module)
+        let permissions = s.permissions
+        if(currentModuleExist){
+          delete permissions[module]
+          return  {...s,permissions}
+        }else{
+          const newPermissions  = {...permissions,[module]:["read"]}
+          return {...s,permissions:newPermissions}
+        }
+    })
+  }
+
   const togglePerm = (module, op) => {
     if (disableAll) return;
     setForm((s) => {
-      const current = s.permissions?.[module] || [];
-      const exists = current.includes(op);
-      const nextArr = exists ? current.filter((x) => x !== op) : [...current, op];
-      const next = { ...(s.permissions || {}) };
-      if (nextArr.length === 0) delete next[module];
-      else next[module] = nextArr;
+      const current = s.permissions?.[module] || []; //current = ["read"] or []
+      const exists = current.includes(op);  //exists = true if read
+      const nextArr = exists ? current.filter((x) => x !== op) : [...current, op];  //if read , fetch the other operations without read
+                                                                                      //if no read , add it in current 
+      const next = { ...(s.permissions || {}) };   // next = {products}
+      if (nextArr.length === 0) delete next[module]; 
+      else next[module] = nextArr;     
       return { ...s, permissions: next };
     });
   };
@@ -150,7 +173,11 @@ export default function RoleFormCard({ mode = "add", id }) {
   const crumbs = [{ label: "Roles", to: "/roles" }, { label: Title }];
 
   return (
-    <Box sx={{ height: "100%", display: "flex", flexDirection: "column", fontSize: "0.85rem" }}>
+    <>
+     {
+    metaLoading ? <>"Loading...."</> :
+    (
+       <Box sx={{ height: "100%", display: "flex", flexDirection: "column", fontSize: "0.85rem" }}>
       <Box
         sx={{
           position: "sticky",
@@ -214,7 +241,8 @@ export default function RoleFormCard({ mode = "add", id }) {
                   gap: 2,
                 }}
               >
-                {MODULES.map((mod) => {
+                {MODULES?.map((mod) => {
+                  
                   const selected = form.permissions?.[mod] || [];
                   return (
                     <Box
@@ -228,10 +256,24 @@ export default function RoleFormCard({ mode = "add", id }) {
                         gap: 1,
                       }}
                       title={isView ? "View only" : undefined}
-                    >
-                      <Typography sx={{ fontWeight: 600, textTransform: "capitalize", fontSize: "0.9rem" }}>
-                        {mod}
-                      </Typography>
+                    > 
+                     
+                          <FormControlLabel
+                            key={`${mod}`}
+                            control={
+                              <Checkbox
+                                size="small"
+                                
+                                checked={form.permissions.hasOwnProperty(mod)}
+                                onChange={() => toggleModule(mod)}
+                                disabled={disableAll}
+                                
+                              />
+                            }
+                            label={<Typography sx={{ fontWeight: 600, textTransform: "capitalize", fontSize: "0.9rem" }}>{mod}</Typography>}
+                          />
+                        
+                
 
                       <Box sx={{ display: "flex", gap: 1.5, flexWrap: "wrap", opacity: isView ? 0.9 : 1 }}>
                         {OPERATIONS.map((op) => (
@@ -307,5 +349,10 @@ export default function RoleFormCard({ mode = "add", id }) {
         © {new Date().getFullYear()} ecom
       </Box>
     </Box>
+    )
+  }
+   
+    </>
+ 
   );
 }

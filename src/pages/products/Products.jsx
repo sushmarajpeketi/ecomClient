@@ -1,4 +1,5 @@
-import React, { useEffect, useState, useContext } from "react";
+// src/pages/products/Products.jsx
+import React, { useEffect, useState, useContext, useMemo } from "react";
 import axios from "axios";
 import {
   Box,
@@ -9,6 +10,12 @@ import {
   DialogActions,
   DialogContent,
   DialogTitle,
+  MenuItem,
+  Select,
+  FormControl,
+  InputLabel,
+  Tooltip,
+  Divider,
 } from "@mui/material";
 import SearchIcon from "@mui/icons-material/Search";
 import AddIcon from "@mui/icons-material/Add";
@@ -18,8 +25,13 @@ import ProductsTable from "../../components/Products/ProductsTable";
 import { userContext } from "../../context/userContext";
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
-import { DesktopDatePicker } from "@mui/x-date-pickers/DesktopDatePicker";
+import { DatePicker } from "@mui/x-date-pickers/DatePicker";
 import PageHeader from "../../components/PageHeader";
+
+const CONTROL_H = 36;
+const FIELD_W = 120;
+const BTN_MIN_W = 82;
+const BASE_URL = "http://localhost:3000";
 
 const Products = () => {
   const { user } = useContext(userContext);
@@ -35,14 +47,27 @@ const Products = () => {
   const [order, setOrder] = useState("desc");
 
   const [searchObj, setSearchObj] = useState({
-    name: "",
-    createdAt: null,
+    q: "",
+    category: "",
+    from: null,
+    to: null,
     priceMin: "",
     priceMax: "",
   });
 
+  const [categories, setCategories] = useState([]);
+
   const [deleteOpen, setDeleteOpen] = useState(false);
   const [deleteId, setDeleteId] = useState(null);
+
+  const [toggleOpen, setToggleOpen] = useState(false);
+  const [toggleId, setToggleId] = useState(null);
+  const [toggleNextVal, setToggleNextVal] = useState(null);
+
+  const toggleProduct = useMemo(
+    () => products.find((p) => p?._id === toggleId),
+    [products, toggleId]
+  );
 
   const buildQuery = (fetchTotalParam = true, overrides = {}) => {
     const p = new URLSearchParams();
@@ -58,15 +83,14 @@ const Products = () => {
     p.set("rows", current.rows);
     p.set("sort", current.sort);
     p.set("order", current.order);
-    if (current.searchObj.name) p.set("name", current.searchObj.name.trim());
-    if (
-      current.searchObj.createdAt &&
-      dayjs(current.searchObj.createdAt).isValid()
-    ) {
-      p.set(
-        "createdAt",
-        dayjs(current.searchObj.createdAt).format("YYYY-MM-DD")
-      );
+    if (current.searchObj.q?.trim()) p.set("q", current.searchObj.q.trim());
+    if (current.searchObj.category?.trim())
+      p.set("category", current.searchObj.category.trim());
+    if (current.searchObj.from && dayjs(current.searchObj.from).isValid()) {
+      p.set("from", dayjs(current.searchObj.from).startOf("day").toISOString());
+    }
+    if (current.searchObj.to && dayjs(current.searchObj.to).isValid()) {
+      p.set("to", dayjs(current.searchObj.to).endOf("day").toISOString());
     }
     if (current.searchObj.priceMin !== "")
       p.set("priceMin", current.searchObj.priceMin);
@@ -79,7 +103,7 @@ const Products = () => {
   const fetchProducts = async (fetchTotalParam = true, overrides = {}) => {
     setLoading(true);
     try {
-      const url = `http://localhost:3000/products${buildQuery(
+      const url = `${BASE_URL}/products${buildQuery(
         fetchTotalParam,
         overrides
       )}`;
@@ -91,9 +115,28 @@ const Products = () => {
     }
   };
 
+  const fetchCategories = async () => {
+    const res = await axios.get(`${BASE_URL}/category`, {
+      withCredentials: true,
+    });
+    const arr = Array.isArray(res?.data?.data) ? res.data.data : res.data || [];
+    setCategories(arr.map((c) => ({ id: c.id || c._id, name: c.name })));
+  };
+
   useEffect(() => {
     fetchProducts(true);
+    fetchCategories();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  useEffect(() => {
+    const t = setTimeout(() => {
+      setPage(0);
+      fetchProducts(true, { page: 0 });
+    }, 250);
+    return () => clearTimeout(t);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [searchObj.from, searchObj.to]);
 
   const handleDeleteOpen = (id) => {
     setDeleteId(id);
@@ -101,7 +144,7 @@ const Products = () => {
   };
 
   const handleDeleteConfirm = async () => {
-    await axios.delete(`http://localhost:3000/products/${deleteId}`, {
+    await axios.delete(`${BASE_URL}/products/${deleteId}`, {
       withCredentials: true,
     });
     setDeleteOpen(false);
@@ -115,13 +158,20 @@ const Products = () => {
     setDeleteId(null);
   };
 
-  const handleSearch = () => {
+  const triggerSearch = () => {
     setPage(0);
     fetchProducts(true, { page: 0 });
   };
 
   const handleClear = () => {
-    const cleared = { name: "", createdAt: null, priceMin: "", priceMax: "" };
+    const cleared = {
+      q: "",
+      category: "",
+      from: null,
+      to: null,
+      priceMin: "",
+      priceMax: "",
+    };
     setSearchObj(cleared);
     setSort("createdAt");
     setOrder("desc");
@@ -134,6 +184,30 @@ const Products = () => {
       order: "desc",
       searchObj: cleared,
     });
+  };
+
+  const handleToggleOpen = (id, nextVal) => {
+    setToggleId(id);
+    setToggleNextVal(nextVal);
+    setToggleOpen(true);
+  };
+
+  const handleToggleConfirm = async () => {
+    await axios.put(
+      `${BASE_URL}/products/${toggleId}`,
+      { status: toggleNextVal },
+      { withCredentials: true }
+    );
+    setToggleOpen(false);
+    setToggleId(null);
+    setToggleNextVal(null);
+    fetchProducts(false);
+  };
+
+  const handleToggleCancel = () => {
+    setToggleOpen(false);
+    setToggleId(null);
+    setToggleNextVal(null);
   };
 
   const handleChangePage = (newPage) => {
@@ -162,90 +236,194 @@ const Products = () => {
   const handleAddNavigate = () => navigate("/products/add");
 
   return (
-    <Box sx={{ height: "100%", display: "flex", flexDirection: "column" }}>
+    // Full-height column so the footer sits at the bottom when content is short,
+    // and appears after the table when content is long.
+    <Box sx={{ minHeight: "100vh", display: "flex", flexDirection: "column" }}>
+      {/* Sticky top block: Header + Divider + Filters */}
       <Box
-        sx={{ px: 2, pt: 1, borderBottom: "1px solid", borderColor: "divider" }}
+        sx={{
+          position: "sticky",
+          top: 0,
+          zIndex: (t) => t.zIndex.appBar + 1,
+          bgcolor: "background.paper",
+          px: 2,
+          pt: 1,
+          pb: 1,
+          // borderBottom: "1px solid",
+          // borderColor: "divider",
+        }}
       >
         <PageHeader title="Products" crumbs={[{ label: "Products" }]} />
-      </Box>
+        <Divider sx={{ my: 1 }} />
 
-      <Stack
-        direction="row"
-        spacing={2}
-        alignItems="center"
-        sx={{ mt: 2, flexWrap: "wrap" }}
-        mr={2}
-        ml={2}
-      >
-        <TextField
-          label="Product name"
-          size="small"
-          value={searchObj.name}
-          onChange={(e) =>
-            setSearchObj((s) => ({ ...s, name: e.target.value }))
-          }
-          sx={{ minWidth: 240 }}
-        />
-        <LocalizationProvider dateAdapter={AdapterDayjs}>
-          <DesktopDatePicker
-            label="Created on"
-            value={searchObj.createdAt || null}
-            onChange={(v) => setSearchObj((s) => ({ ...s, createdAt: v }))}
-            slotProps={{ textField: { size: "small" } }}
-          />
-        </LocalizationProvider>
-        <TextField
-          label="Min price"
-          size="small"
-          type="number"
-          value={searchObj.priceMin}
-          onChange={(e) =>
-            setSearchObj((s) => ({ ...s, priceMin: e.target.value }))
-          }
-          sx={{ width: 140 }}
-        />
-        <TextField
-          label="Max price"
-          size="small"
-          type="number"
-          value={searchObj.priceMax}
-          onChange={(e) =>
-            setSearchObj((s) => ({ ...s, priceMax: e.target.value }))
-          }
-          sx={{ width: 140 }}
-        />
-        <Box sx={{ flex: 1 }} />
-        <Stack direction="row" spacing={1.25} alignItems="center">
-          <Button
-            variant="outlined"
-            size="medium"
-            onClick={handleSearch}
-            endIcon={<SearchIcon />}
+        <Box
+          component="form"
+          onSubmit={(e) => {
+            e.preventDefault();
+            triggerSearch();
+          }}
+          sx={{
+            display: "flex",
+            justifyContent: "space-between",
+            gap: 1,
+            mt: 1.9,
+          }}
+        >
+          <Stack
+            direction="row"
+            spacing={0.75}
+            alignItems="center"
+            useFlexGap
             sx={{
-              borderColor: "grey.800",
-              color: "grey.800",
-              "&:hover": { borderColor: "grey.900", color: "grey.900" },
+              flexWrap: "wrap",
+              rowGap: 0.9,
+              columnGap: 0.75,
+              "& > *": { flex: "0 0 auto" },
             }}
           >
-            Search
-          </Button>
-          <Button variant="outlined" size="medium" onClick={handleClear}>
-            Clear
-          </Button>
-          {user?.role === "admin" && (
-            <Button
-              variant="contained"
-              size="medium"
-              onClick={handleAddNavigate}
-              endIcon={<AddIcon />}
-            >
-              Add
-            </Button>
-          )}
-        </Stack>
-      </Stack>
+            <Tooltip title="Search by name, description, category, price" arrow>
+              <TextField
+                label="Search"
+                size="small"
+                value={searchObj.q}
+                onChange={(e) =>
+                  setSearchObj((s) => ({ ...s, q: e.target.value }))
+                }
+                sx={{
+                  width: FIELD_W,
+                  "& .MuiInputBase-root": { height: CONTROL_H },
+                }}
+              />
+            </Tooltip>
 
-      <Box sx={{ flex: 1, overflow: "auto", px: 2, pt: 2, pb: 2 }}>
+            <FormControl
+              size="small"
+              sx={{
+                width: FIELD_W,
+                "& .MuiInputBase-root": { height: CONTROL_H },
+              }}
+            >
+              <InputLabel>Category</InputLabel>
+              <Select
+                label="Category"
+                value={searchObj.category}
+                onChange={(e) =>
+                  setSearchObj((s) => ({ ...s, category: e.target.value }))
+                }
+                MenuProps={{ PaperProps: { style: { maxHeight: 320 } } }}
+              >
+                <MenuItem value="">
+                  <em>All</em>
+                </MenuItem>
+                {categories.map((c) => (
+                  <MenuItem key={c.id} value={c.id}>
+                    {c.name}
+                  </MenuItem>
+                ))}
+              </Select>
+            </FormControl>
+
+            <LocalizationProvider dateAdapter={AdapterDayjs}>
+              <DatePicker
+                label="From"
+                value={searchObj.from}
+                onChange={(v) => setSearchObj((s) => ({ ...s, from: v }))}
+                format="DD MMM"
+                slotProps={{
+                  textField: {
+                    size: "small",
+                    sx: {
+                      width: FIELD_W,
+                      "& .MuiInputBase-root": { height: CONTROL_H },
+                    },
+                  },
+                }}
+              />
+              <DatePicker
+                label="To"
+                value={searchObj.to}
+                onChange={(v) => setSearchObj((s) => ({ ...s, to: v }))}
+                format="DD MMM"
+                slotProps={{
+                  textField: {
+                    size: "small",
+                    sx: {
+                      width: FIELD_W,
+                      "& .MuiInputBase-root": { height: CONTROL_H },
+                    },
+                  },
+                }}
+              />
+            </LocalizationProvider>
+
+            <TextField
+              label="Min"
+              size="small"
+              type="number"
+              value={searchObj.priceMin}
+              onChange={(e) =>
+                setSearchObj((s) => ({ ...s, priceMin: e.target.value }))
+              }
+              sx={{
+                width: FIELD_W,
+                "& .MuiInputBase-root": { height: CONTROL_H },
+              }}
+              inputProps={{ inputMode: "numeric", pattern: "[0-9]*" }}
+            />
+
+            <TextField
+              label="Max"
+              size="small"
+              type="number"
+              value={searchObj.priceMax}
+              onChange={(e) =>
+                setSearchObj((s) => ({ ...s, priceMax: e.target.value }))
+              }
+              sx={{
+                width: FIELD_W,
+                "& .MuiInputBase-root": { height: CONTROL_H },
+              }}
+              inputProps={{ inputMode: "numeric", pattern: "[0-9]*" }}
+            />
+          </Stack>
+
+          <Stack direction="row" spacing={0.75} alignItems="center" useFlexGap>
+            <Box sx={{ width: 12, flex: "0 0 auto" }} />
+            <Button
+              type="submit"
+              variant="outlined"
+              size="small"
+              endIcon={<SearchIcon />}
+              sx={{ height: CONTROL_H, minWidth: BTN_MIN_W }}
+            >
+              Search
+            </Button>
+            <Button
+              variant="outlined"
+              size="small"
+              onClick={handleClear}
+              sx={{ height: CONTROL_H, minWidth: BTN_MIN_W }}
+            >
+              Clear
+            </Button>
+
+            {user?.permissions["products"].includes("write") ? (
+              <Button
+                variant="contained"
+                size="small"
+                onClick={handleAddNavigate}
+                endIcon={<AddIcon />}
+                sx={{ height: CONTROL_H, minWidth: BTN_MIN_W }}
+              >
+                Add
+              </Button>
+            ) : null}
+          </Stack>
+        </Box>
+      </Box>
+
+      {/* Main scroll content (table) — naturally goes under the sticky block */}
+      <Box sx={{ flex: 1, px: 2, pb: 2, overflowX: "auto" }}>
         <ProductsTable
           products={products}
           page={page}
@@ -259,9 +437,11 @@ const Products = () => {
           onSort={handleSort}
           onDelete={handleDeleteOpen}
           onEdit={handleEditNavigate}
+          onToggle={handleToggleOpen}
         />
       </Box>
 
+      {/* Dialogs */}
       <Dialog
         open={deleteOpen}
         onClose={handleDeleteCancel}
@@ -282,13 +462,50 @@ const Products = () => {
         </DialogActions>
       </Dialog>
 
+      <Dialog
+        open={toggleOpen}
+        onClose={handleToggleCancel}
+        maxWidth="xs"
+        fullWidth
+      >
+        <DialogTitle>
+          {toggleNextVal ? "Activate Product?" : "Deactivate Product?"}
+        </DialogTitle>
+        <DialogContent>
+          {toggleNextVal ? (
+            <>
+              You’re activating <b>{toggleProduct?.name ?? "this product"}</b>.
+              Continue?
+            </>
+          ) : (
+            <>
+              You’re deactivating <b>{toggleProduct?.name ?? "this product"}</b>
+              . Are you sure?
+            </>
+          )}
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={handleToggleCancel}>Cancel</Button>
+          <Button
+            color={toggleNextVal ? "primary" : "error"}
+            variant="contained"
+            onClick={handleToggleConfirm}
+          >
+            {toggleNextVal ? "Activate" : "Deactivate"}
+          </Button>
+        </DialogActions>
+      </Dialog>
+
+      {/* Footer — not fixed. It appears after the table; if content is short, it sits at the bottom. */}
       <Box
+        component="footer"
         sx={{
-          mt: 1,
+          mt: "auto",
+          px: 2,
+          height: 40,
+          lineHeight: "40px",
           textAlign: "center",
-          py: 1,
-          fontSize: "0.8rem",
-          color: "text.secondary",
+          bgcolor: "background.paper",
           borderTop: "1px solid",
           borderColor: "divider",
         }}

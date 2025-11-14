@@ -20,6 +20,7 @@ const theme = createTheme({
       primary: "#000000",
       secondary: "#616161",
     },
+    
     divider: "#e0e0e0",
   },
   typography: {
@@ -49,7 +50,7 @@ const theme = createTheme({
       },
     },
      MuiTableCell: {
-    styleOverrides: {
+      styleOverrides: {
       root: {
         borderBottom: "1px solid #f0f0f0", 
       },

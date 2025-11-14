@@ -1,4 +1,5 @@
-import React from "react";
+// src/components/roles/RolesTable.jsx
+import React, { useContext } from "react";
 import {
   Paper,
   Table,
@@ -7,18 +8,27 @@ import {
   TableContainer,
   TableHead,
   TableRow,
+  IconButton,
   TablePagination,
   Box,
   Typography,
   TableSortLabel,
   Switch,
-  Stack,
-  IconButton,
   Tooltip,
 } from "@mui/material";
-import VisibilityOutlinedIcon from "@mui/icons-material/VisibilityOutlined";
-import EditOutlinedIcon from "@mui/icons-material/EditOutlined";
-import { useNavigate } from "react-router-dom";
+import EditIcon from "@mui/icons-material/Edit";
+import VisibilityIcon from "@mui/icons-material/Visibility";
+import { userContext } from "../../context/userContext";
+
+const headerSx = {
+  fontWeight: 700,
+  color: "#fff",
+  backgroundColor: "#1f2937",
+  "& .MuiTableSortLabel-root": { color: "#fff !important" },
+  "& .MuiTableSortLabel-root:hover": { color: "#fff !important" },
+  "& .MuiTableSortLabel-root.Mui-active": { color: "#fff !important" },
+  "& .MuiTableSortLabel-icon": { color: "#fff !important", opacity: 1 },
+};
 
 const RolesTable = ({
   roles = [],
@@ -26,35 +36,23 @@ const RolesTable = ({
   rowsPerPage,
   pageSetter,
   rowsPerPageSetter,
-  length,
-  loading,
+  length = 0,
+  loading = false,
   sort,
   order,
   onSort,
-  onToggleActive,
+  onToggle,
+  onView,
+  onEdit,
 }) => {
-  const navigate = useNavigate();
   const noData = roles.length === 0 && !loading;
-
-  const headerCellSx = {
-    fontWeight: 700,
-    color: "#fff",
-    backgroundColor: "#1f2937",
-    "& .MuiTableSortLabel-root": { color: "#fff !important" },
-    "& .MuiTableSortLabel-root:hover": { color: "#fff !important" },
-    "& .MuiTableSortLabel-root.Mui-active": { color: "#fff !important" },
-    "& .MuiTableSortLabel-icon": { color: "#fff !important", opacity: 1 },
-    "& .MuiTableSortLabel-iconDirectionAsc": { color: "#fff !important" },
-    "& .MuiTableSortLabel-iconDirectionDesc": { color: "#fff !important" },
-  };
-
-  const sortableHeader = (field, label, inactiveDir = "asc", align = "center") => (
-    <TableCell align={align} sx={headerCellSx}>
+  const { user } = useContext(userContext);
+  const sortableHeader = (field, label) => (
+    <TableCell align="center" sx={headerSx}>
       <TableSortLabel
-        hideSortIcon={false}
         active={sort === field}
-        direction={sort === field ? (order === "asc" ? "asc" : "desc") : inactiveDir}
-        onClick={() => onSort?.(field)}
+        direction={sort === field ? order : "asc"}
+        onClick={() => onSort && onSort(field)}
       >
         {label}
       </TableSortLabel>
@@ -63,15 +61,29 @@ const RolesTable = ({
 
   return (
     <Paper sx={{ width: "100%", overflow: "hidden", mt: 1 }}>
-      <TableContainer sx={{ maxHeight: 640 }}>
-        <Table stickyHeader size="small" sx={{ "& td, & th": { fontSize: "0.88rem" } }}>
+      <TableContainer sx={{ maxHeight: 600 }}>
+        <Table
+          stickyHeader
+          size="small"
+          sx={{ "& th, & td": { fontSize: "0.92rem", py: 1 } }}
+        >
           <TableHead>
             <TableRow>
-              {sortableHeader("name", "Role Name")}
+              {sortableHeader("name", "Name")}
               {sortableHeader("description", "Description")}
-              <TableCell align="center" sx={headerCellSx}>Status</TableCell>
-              {sortableHeader("createdAt", "Created On", "desc")}
-              <TableCell align="right" sx={{ ...headerCellSx, width: 120 }}>Actions</TableCell>
+              {sortableHeader("createdAt", "Created At")}
+              <TableCell align="center" sx={headerSx}>
+                Status
+              </TableCell>
+
+              {!(
+                user?.permissions["roles"].includes("read") &&
+                user?.permissions["roles"].length == 1
+              ) ? (
+                <TableCell align="center" sx={headerSx}>
+                  Actions
+                </TableCell>
+              ) : null}
             </TableRow>
           </TableHead>
 
@@ -79,45 +91,78 @@ const RolesTable = ({
             {noData ? (
               <TableRow>
                 <TableCell colSpan={5} align="center">
-                  <Typography variant="body2" color="text.secondary">No roles found</Typography>
+                  <Typography variant="body2" color="text.secondary">
+                    No roles found
+                  </Typography>
                 </TableCell>
               </TableRow>
             ) : (
               roles.map((r) => {
-                const id = r.id || r._id;
+                const id = r._id || r.id;
+                const checked = !!r.isActive;
                 return (
                   <TableRow key={id} hover>
                     <TableCell align="center">{r.name}</TableCell>
-                    <TableCell align="center">{r.description?.trim() || "-"}</TableCell>
+                    <TableCell align="center">{r.description || "-"}</TableCell>
                     <TableCell align="center">
-                      <Stack direction="row" alignItems="center" justifyContent="center" spacing={1}>
+                      {r.createdAt
+                        ? new Date(r.createdAt).toLocaleDateString()
+                        : "-"}
+                    </TableCell>
+                    <TableCell align="center">
+                      <Box sx={{ display: "flex", justifyContent: "center" }}>
                         <Switch
                           size="small"
-                          checked={!!r.isActive}
-                          onChange={() => onToggleActive?.(id, !r.isActive)}
-                          inputProps={{ "aria-label": "toggle active" }}
+                          checked={checked}
+                          onChange={() => onToggle && onToggle(id, !checked)}
+                          disabled={loading}
+                          sx={{
+                            "& .MuiSwitch-switchBase.Mui-checked": {
+                              color: "grey.800",
+                            },
+                            "& .MuiSwitch-switchBase.Mui-checked + .MuiSwitch-track":
+                              { backgroundColor: "grey.800" },
+                          }}
+                          inputProps={{ "aria-label": "toggle role status" }}
                         />
-                      </Stack>
+                      </Box>
                     </TableCell>
-                    <TableCell align="center">
-                      {r.createdAt ? new Date(r.createdAt).toLocaleDateString() : "-"}
-                    </TableCell>
-                    <TableCell align="right" sx={{ whiteSpace: "nowrap" }}>
-                      <Tooltip title="View">
-                        <span>
-                          <IconButton size="small" aria-label="view role" onClick={() => navigate(`/roles/view/${id}`)}>
-                            <VisibilityOutlinedIcon fontSize="small" />
-                          </IconButton>
-                        </span>
-                      </Tooltip>
-                      <Tooltip title="Edit">
-                        <span>
-                          <IconButton size="small" aria-label="edit role" onClick={() => navigate(`/roles/edit/${id}`)}>
-                            <EditOutlinedIcon fontSize="small" />
-                          </IconButton>
-                        </span>
-                      </Tooltip>
-                    </TableCell>
+
+                    {!(
+                      user?.permissions["roles"].includes("read") &&
+                      user?.permissions["roles"].length == 1
+                    ) ? (
+                      <TableCell align="center">
+                        <Box
+                          sx={{
+                            display: "flex",
+                            justifyContent: "center",
+                            gap: 1,
+                          }}
+                        >
+                          {user?.permissions["roles"].includes("write") ? (
+                            <>
+                              <Tooltip title="View">
+                                <IconButton
+                                  color="primary"
+                                  onClick={() => onView && onView(id)}
+                                >
+                                  <VisibilityIcon />
+                                </IconButton>
+                              </Tooltip>
+                              <Tooltip title="Edit">
+                                <IconButton
+                                  color="primary"
+                                  onClick={() => onEdit && onEdit(id)}
+                                >
+                                  <EditIcon />
+                                </IconButton>
+                              </Tooltip>
+                            </>
+                          ) : null}
+                        </Box>
+                      </TableCell>
+                    ) : null}
                   </TableRow>
                 );
               })
@@ -133,8 +178,10 @@ const RolesTable = ({
           count={noData ? 0 : length}
           rowsPerPage={rowsPerPage || 10}
           page={noData ? 0 : page}
-          onPageChange={(e, newPage) => pageSetter(newPage)}
-          onRowsPerPageChange={(e) => rowsPerPageSetter(parseInt(e.target.value, 10))}
+          onPageChange={(_, np) => pageSetter(np)}
+          onRowsPerPageChange={(e) =>
+            rowsPerPageSetter(parseInt(e.target.value, 10))
+          }
           labelRowsPerPage=""
         />
       </Box>

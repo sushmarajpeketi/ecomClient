@@ -164,18 +164,7 @@ const Signup = () => {
 
           <Divider />
 
-          <Box sx={{ display: "flex", justifyContent: "space-between" }}>
-            <Button
-              variant="outlined"
-              color="primary"
-              onClick={() => navigate("/sign-in")}
-            >
-              Already have an account?
-            </Button>
-            <Button variant="text" color="secondary" onClick={() => navigate("/")}>
-              Back to home
-            </Button>
-          </Box>
+          
         </Stack>
       </Paper>
     </Container>

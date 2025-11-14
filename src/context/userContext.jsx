@@ -12,7 +12,7 @@ export const UserProvider = ({ children }) => {
   const logout = () => {
     axios
       .get("http://localhost:3000/users/logout", { withCredentials: true })
-      .catch(() => {})
+      .catch((e) => {})
       .finally(() => {
         setUser(null);
         window.location.href = "/sign-in";
